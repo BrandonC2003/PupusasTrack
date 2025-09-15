@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "939486036920",
+    "project_id": "pupusas-track",
+    "storage_bucket": "pupusas-track.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:939486036920:android:e4ed6801bf95deea30854d",
+        "android_client_info": {
+          "package_name": "com.example.pupusas_track"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9Tzb9ZoK4XZWbLkmzO2__0R9odG-mEMs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
