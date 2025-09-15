@@ -1,7 +1,5 @@
 import '../entities/auth_user.dart';
 import '../repositories/auth_repository.dart';
-import '../value_objects/email.dart';
-import '../value_objects/password.dart';
 
 class SignUpUseCase {
   final AuthRepository authRepository;
@@ -11,8 +9,8 @@ class SignUpUseCase {
   Future<AuthUser> call(SignUpParams params) async {
     try {
       AuthUser authUser = await authRepository.signUp(
-        email: params.email.value,
-        password: params.password.value,
+        email: params.email,
+        password: params.password,
       );
       return authUser;
     } on ArgumentError catch (error) {
@@ -24,8 +22,8 @@ class SignUpUseCase {
 }
 
 class SignUpParams {
-  final Email email;
-  final Password password;
+  final String email;
+  final String password;
 
   SignUpParams({
     required this.email,

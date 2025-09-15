@@ -2,13 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_bloc.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_event.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_state.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/use_cases/sign_in_use_case.dart';
 import '../blocs/email_status.dart';
 import '../blocs/form_status.dart';
 import '../blocs/password_status.dart';
-import '../blocs/sign_in/sign_in_cubit.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});
@@ -16,7 +18,7 @@ class SignInScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SignInCubit(
+      create: (context) => SignInBloc(
         signInUseCase: SignInUseCase(
           authRepository: context.read<AuthRepository>(),
         ),
@@ -44,11 +46,12 @@ class _SignInViewState extends State<SignInView> {
 
   @override
   Widget build(BuildContext context) {
+    final signInBloc = context.read<SignInBloc>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign In'),
+        title: const Text('Iniciar sesión'),
       ),
-      body: BlocConsumer<SignInCubit, SignInState>(
+      body: BlocConsumer<SignInBloc, SignInState>(
         listener: (context, state) {
           if (state.formStatus == FormStatus.invalid) {
             ScaffoldMessenger.of(context)
@@ -92,13 +95,13 @@ class _SignInViewState extends State<SignInView> {
                   decoration: InputDecoration(
                     labelText: 'Email',
                     errorText: state.emailStatus == EmailStatus.invalid
-                        ? 'Invalid email'
+                        ? state.emailMessage
                         : null,
                   ),
                   onChanged: (String value) {
                     if (debounce?.isActive ?? false) debounce?.cancel();
                     debounce = Timer(const Duration(milliseconds: 500), () {
-                      context.read<SignInCubit>().emailChanged(value);
+                      signInBloc.add(EmailChanged(value));
                     });
                   },
                 ),
@@ -108,21 +111,21 @@ class _SignInViewState extends State<SignInView> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     errorText: state.passwordStatus == PasswordStatus.invalid
-                        ? 'Invalid password'
+                        ? state.passwordMessage
                         : null,
                   ),
                   onChanged: (String value) {
-                    context.read<SignInCubit>().passwordChanged(value);
+                    signInBloc.add(PasswordChanged(value));
                   },
                 ),
                 const SizedBox(height: 8.0),
                 ElevatedButton(
                   key: const Key('signIn_continue_elevatedButton'),
-                  onPressed: context.read<SignInCubit>().state.formStatus ==
+                  onPressed: signInBloc.state.formStatus ==
                           FormStatus.submissionInProgress
                       ? null
                       : () {
-                          context.read<SignInCubit>().signIn();
+                          signInBloc.add(SignInSubmitted());
                         },
                   child: const Text('Sign In'),
                 ),

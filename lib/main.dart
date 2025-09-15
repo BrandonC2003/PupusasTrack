@@ -1,44 +1,22 @@
-import 'dart:async';
-
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'features/auth/data/data_sources/auth_local_data_source.dart';
-import 'features/auth/data/data_sources/auth_remote_data_source.dart';
-import 'features/auth/data/data_sources/auth_remote_data_source_firebase.dart';
-import 'features/auth/data/repositories/auth_repository_impl.dart';
-import 'features/auth/domain/entities/auth_user.dart';
+import 'injection.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/domain/entities/auth_user.dart';
 import 'features/auth/presentation/screens/sign_in_screen.dart';
 
-typedef AppBuilder = Future<Widget> Function();
-
-Future<void> bootstrap(AppBuilder builder) async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(await builder());
-}
 
-void main() {
-  bootstrap(
-    () async {
-      AuthLocalDataSource authLocalDataSource = AuthLocalDataSource();
-      AuthRemoteDataSource authRemoteDataSource =
-          AuthRemoteDataSourceFirebase();
+  await initDependencies();
 
-      AuthRepository authRepository = AuthRepositoryImpl(
-        localDataSource: authLocalDataSource,
-        remoteDataSource: authRemoteDataSource,
-      );
+  final authRepository = sl<AuthRepository>();
+  final authUser = await authRepository.authUser.first;
 
-      return App(
-        authRepository: authRepository,
-        authUser: await authRepository.authUser.first,
-      );
-    },
-  );
+  runApp(App(authRepository: authRepository, authUser: authUser));
 }
 
 class App extends StatelessWidget {
@@ -58,7 +36,7 @@ class App extends StatelessWidget {
         RepositoryProvider.value(value: authRepository),
       ],
       child: MaterialApp(
-        title: 'Clean Architecture',
+        title: 'PupusasTrack',
         theme: ThemeData.light(useMaterial3: true),
         home: const SignInScreen(),
       ),

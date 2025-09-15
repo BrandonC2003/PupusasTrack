@@ -2,8 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../domain/use_cases/sign_up_use_case.dart';
-import '../../../domain/value_objects/email.dart';
-import '../../../domain/value_objects/password.dart';
 import '../email_status.dart';
 import '../form_status.dart';
 import '../password_status.dart';
@@ -20,10 +18,9 @@ class SignUpCubit extends Cubit<SignUpState> {
 
   void emailChanged(String value) {
     try {
-      Email email = Email((email) => email..value = value);
       emit(
         state.copyWith(
-          email: email,
+          email: value,
           emailStatus: EmailStatus.valid,
         ),
       );
@@ -34,10 +31,9 @@ class SignUpCubit extends Cubit<SignUpState> {
 
   void passwordChanged(String value) {
     try {
-      Password password = Password((password) => password..value = value);
       emit(
         state.copyWith(
-          password: password,
+          password: value,
           passwordStatus: PasswordStatus.valid,
         ),
       );

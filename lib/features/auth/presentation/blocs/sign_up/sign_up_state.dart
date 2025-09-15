@@ -1,8 +1,8 @@
 part of 'sign_up_cubit.dart';
 
 class SignUpState extends Equatable {
-  final Email? email;
-  final Password? password;
+  final String? email;
+  final String? password;
   final EmailStatus emailStatus;
   final PasswordStatus passwordStatus;
   final FormStatus formStatus;
@@ -16,8 +16,8 @@ class SignUpState extends Equatable {
   });
 
   SignUpState copyWith({
-    Email? email,
-    Password? password,
+    String? email,
+    String? password,
     EmailStatus? emailStatus,
     PasswordStatus? passwordStatus,
     FormStatus? formStatus,
