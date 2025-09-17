@@ -54,6 +54,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       );
     });
 
+    on<ToggleObscurePassword>((event, emit) {
+      emit(state.copyWith(obscurePassword: !state.obscurePassword));
+    });
+
     on<SignInSubmitted>((event, emit) async {
       if (!(state.emailStatus == EmailStatus.valid) ||
           !(state.passwordStatus == PasswordStatus.valid)) {

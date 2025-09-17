@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_bloc.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_event.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_state.dart';
@@ -118,6 +119,9 @@ class _SignUpViewState extends State<SignUpView> {
                         },
                   child: const Text('Sign Up'),
                 ),
+                ElevatedButton(
+                  onPressed: () => context.go('/sign-in'), 
+                  child: const Text('Ya tienes cuenta? Inicia sesión'))
               ],
             ),
           );

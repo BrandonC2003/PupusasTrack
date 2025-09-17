@@ -9,4 +9,5 @@ class EmailChanged extends SignInEvent {
   String email;
   EmailChanged(this.email);
 }
+class ToggleObscurePassword extends SignInEvent {}
 class SignInSubmitted extends SignInEvent {}

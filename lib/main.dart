@@ -5,7 +5,7 @@ import 'firebase_options.dart';
 import 'injection.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/entities/auth_user.dart';
-import 'features/auth/presentation/screens/sign_in_screen.dart';
+import 'app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,10 +35,10 @@ class App extends StatelessWidget {
       providers: [
         RepositoryProvider.value(value: authRepository),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: 'PupusasTrack',
         theme: ThemeData.light(useMaterial3: true),
-        home: const SignInScreen(),
+        routerConfig: AppRouter.router,
       ),
     );
   }
