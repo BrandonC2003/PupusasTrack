@@ -2,13 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_bloc.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_event.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_state.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/use_cases/sign_up_use_case.dart';
 import '../blocs/email_status.dart';
 import '../blocs/form_status.dart';
 import '../blocs/password_status.dart';
-import '../blocs/sign_up/sign_up_cubit.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
@@ -16,7 +18,7 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SignUpCubit(
+      create: (context) => SignUpBloc(
         signUpUseCase: SignUpUseCase(
           authRepository: context.read<AuthRepository>(),
         ),
@@ -44,11 +46,12 @@ class _SignUpViewState extends State<SignUpView> {
 
   @override
   Widget build(BuildContext context) {
+    final signUpBloc = context.read<SignUpBloc>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign Up'),
       ),
-      body: BlocConsumer<SignUpCubit, SignUpState>(
+      body: BlocConsumer<SignUpBloc, SignUpState>(
         listener: (context, state) {
           if (state.formStatus == FormStatus.invalid) {
             ScaffoldMessenger.of(context)
@@ -87,7 +90,7 @@ class _SignUpViewState extends State<SignUpView> {
                   onChanged: (String value) {
                     if (debounce?.isActive ?? false) debounce?.cancel();
                     debounce = Timer(const Duration(milliseconds: 500), () {
-                      context.read<SignUpCubit>().emailChanged(value);
+                      signUpBloc.add(EmailChanged(value));
                     });
                   },
                 ),
@@ -97,21 +100,21 @@ class _SignUpViewState extends State<SignUpView> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     errorText: state.passwordStatus == PasswordStatus.invalid
-                        ? 'Invalid password'
+                        ? state.passwordMessage
                         : null,
                   ),
                   onChanged: (String value) {
-                    context.read<SignUpCubit>().passwordChanged(value);
+                    signUpBloc.add(PasswordChanged(value));
                   },
                 ),
                 const SizedBox(height: 8.0),
                 ElevatedButton(
                   key: const Key('signUp_continue_elevatedButton'),
-                  onPressed: context.read<SignUpCubit>().state.formStatus ==
+                  onPressed: signUpBloc.state.formStatus ==
                           FormStatus.submissionInProgress
                       ? null
                       : () {
-                          context.read<SignUpCubit>().signUp();
+                          signUpBloc.add(SignUpSubmitted());
                         },
                   child: const Text('Sign Up'),
                 ),
