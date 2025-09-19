@@ -15,8 +15,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       if (event.password.isEmpty) {
         emit(
           state.copyWith(
-            passwordStatus: PasswordStatus.invalid,
-            passwordMessage: "Ingrese la contraseña",
+            passwordStatus: InvalidPasswordStatus(message: "Ingrese la contraseña"),
           ),
         );
         return;
@@ -24,8 +23,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       emit(
         state.copyWith(
           password: event.password,
-          passwordStatus: PasswordStatus.valid,
-          passwordMessage: null,
+          passwordStatus: ValidPasswordStatus(),
         ),
       );
     });
@@ -38,8 +36,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       if (!emailRegExp.hasMatch(event.email)) {
         emit(
           state.copyWith(
-            emailStatus: EmailStatus.invalid,
-            emailMessage: "Dirección de correo inválida",
+            emailStatus: InvalidEmailStatus(message: "Dirección de correo inválida"),
           ),
         );
         return;
@@ -48,8 +45,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       emit(
         state.copyWith(
           email: event.email,
-          emailStatus: EmailStatus.valid,
-          emailMessage: null,
+          emailStatus: ValidEmailStatus(),
         ),
       );
     });
@@ -59,22 +55,23 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     });
 
     on<SignInSubmitted>((event, emit) async {
-      if (!(state.emailStatus == EmailStatus.valid) ||
-          !(state.passwordStatus == PasswordStatus.valid)) {
-        emit(state.copyWith(formStatus: FormStatus.invalid));
-        emit(state.copyWith(formStatus: FormStatus.initial));
+      if (state.emailStatus is! ValidEmailStatus ||
+          state.passwordStatus is! ValidPasswordStatus) {
+        emit(state.copyWith(formStatus: InvalidFormStatus(message: "Completa los campos correctamente")));
+        emit(state.copyWith(formStatus: InitialFormStatus()));
         return;
       }
 
-      emit(state.copyWith(formStatus: FormStatus.submissionInProgress));
+      emit(state.copyWith(formStatus: SubmissionInProgress()));
       try {
         await _signInUseCase(
           SignInParams(email: state.email!, password: state.password!),
         );
-        emit(state.copyWith(formStatus: FormStatus.submissionSuccess));
+        emit(state.copyWith(formStatus: SubmissionSuccess(message: "Inicio de sesión exitoso")));
       } catch (err) {
-        emit(state.copyWith(formStatus: FormStatus.submissionFailure));
+        emit(state.copyWith(formStatus: SubmissionFailure(message: "Las credenciales ingresadas son incorrectas")));
       }
+      emit(state.copyWith(formStatus: InitialFormStatus()));
     });
   }
 }

@@ -5,52 +5,35 @@ import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_b
 import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_event.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_state.dart';
 
-import '../../domain/repositories/auth_repository.dart';
-import '../../domain/use_cases/sign_in_use_case.dart';
+
 import '../blocs/email_status.dart';
 import '../blocs/form_status.dart';
 import '../blocs/password_status.dart';
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
+
   const SignInScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SignInBloc(
-        signInUseCase: SignInUseCase(
-          authRepository: context.read<AuthRepository>(),
-        ),
-      ),
-      child: const SignInView(),
-    );
-  }
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class SignInView extends StatefulWidget {
-
-  const SignInView({super.key});
-
-  @override
-  State<SignInView> createState() => _SignInViewState();
-}
-
-class _SignInViewState extends State<SignInView> {
+class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocListener<SignInBloc, SignInState>(
         listener: (context, state) {
-          if (state.formStatus == FormStatus.submissionSuccess) {
+          if (state.formStatus is SubmissionSuccess) {
             // Navegar a home cuando el login es exitoso
            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.formMessage ?? 'Inicio de sesión exitoso')),
+              SnackBar(content: Text(state.formStatus.message)),
             );
           }
           
-          if (state.formStatus == FormStatus.submissionFailure) {
+          if (state.formStatus is SubmissionFailure || state.formStatus is InvalidFormStatus) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.formMessage ?? 'Error al iniciar sesión')),
+              SnackBar(content: Text(state.formStatus.message)),
             );
           }
         },
@@ -166,7 +149,7 @@ class _SignInViewState extends State<SignInView> {
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: 'Correo electrónico',
-                errorText: state.emailStatus == EmailStatus.invalid ? state.emailMessage : null,
+                errorText: state.emailStatus is InvalidEmailStatus ? state.emailStatus.message : null,
                 prefixIcon: const Icon(Icons.email_outlined),
               ),
             ),
@@ -177,7 +160,7 @@ class _SignInViewState extends State<SignInView> {
               obscureText: state.obscurePassword,
               decoration: InputDecoration(
                 labelText: 'Contraseña',
-                errorText: state.passwordStatus == PasswordStatus.invalid ? state.passwordMessage : null,
+                errorText: state.passwordStatus is InvalidPasswordStatus ? state.passwordStatus.message : null,
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(state.obscurePassword ? Icons.visibility : Icons.visibility_off),
@@ -194,7 +177,7 @@ class _SignInViewState extends State<SignInView> {
   Widget _buildLoginButton(BuildContext context) {
     return BlocBuilder<SignInBloc, SignInState>(
       builder: (context, state) {
-        if (state.formStatus == FormStatus.submissionInProgress) {
+        if (state.formStatus is SubmissionInProgress) {
           return const CircularProgressIndicator();
         }
 

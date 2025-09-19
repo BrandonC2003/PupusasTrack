@@ -1,132 +1,198 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_bloc.dart';
-import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_event.dart';
-import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_state.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_bloc.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_event.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_state.dart';
 
-import '../../domain/repositories/auth_repository.dart';
-import '../../domain/use_cases/sign_up_use_case.dart';
 import '../blocs/email_status.dart';
 import '../blocs/form_status.dart';
 import '../blocs/password_status.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
+
   const SignUpScreen({super.key});
 
   @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SignUpBloc(
-        signUpUseCase: SignUpUseCase(
-          authRepository: context.read<AuthRepository>(),
+    return Scaffold(
+      body: BlocListener<SignInBloc, SignInState>(
+        listener: (context, state) {
+          if (state.formStatus is SubmissionSuccess) {
+            // Navegar a home cuando el login es exitoso
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.formStatus.message)),
+            );
+          }
+
+           if (state.formStatus is SubmissionFailure || state.formStatus is InvalidFormStatus) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.formStatus.message)),
+            );
+          }
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 32),
+              
+              // Logo y título
+              _buildHeader(context),
+              
+              const SizedBox(height: 48),
+              
+              // Formulario
+              _buildLoginForm(context),
+              
+              const SizedBox(height: 24),
+              
+              // Botón de login
+              _buildSignUpButton(context),
+              
+              const SizedBox(height: 32),
+              
+              _buildLoginLink(context)
+            ],
+          ),
         ),
       ),
-      child: const SignUpView(),
     );
   }
-}
 
-class SignUpView extends StatefulWidget {
-  const SignUpView({super.key});
-
-  @override
-  State<SignUpView> createState() => _SignUpViewState();
-}
-
-class _SignUpViewState extends State<SignUpView> {
-  Timer? debounce;
-
-  @override
-  void dispose() {
-    debounce?.cancel();
-    super.dispose();
+  Widget _buildHeader(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.primary.withAlpha(0x7F),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(25),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: const Center(
+            child: Text('🫓', style: TextStyle(fontSize: 56)),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'PupasTrack',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Únete a PupusasTrack',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Colors.grey.shade600,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '"Tradición y tecnología en armonía"',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Colors.grey.shade500,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final signUpBloc = context.read<SignUpBloc>();
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign Up'),
-      ),
-      body: BlocConsumer<SignUpBloc, SignUpState>(
-        listener: (context, state) {
-          if (state.formStatus == FormStatus.invalid) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                const SnackBar(
-                  content: Text('Invalid form: please fill in all fields'),
-                ),
-              );
-          }
-          if (state.formStatus == FormStatus.submissionFailure) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'There was an error with the sign up process. Try again.',
-                  ),
-                ),
-              );
-          }
-        },
-        builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                TextFormField(
-                  key: const Key('signUp_emailInput_textField'),
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    errorText: state.emailStatus == EmailStatus.invalid
-                        ? 'Invalid email'
-                        : null,
-                  ),
-                  onChanged: (String value) {
-                    if (debounce?.isActive ?? false) debounce?.cancel();
-                    debounce = Timer(const Duration(milliseconds: 500), () {
-                      signUpBloc.add(EmailChanged(value));
-                    });
-                  },
-                ),
-                TextFormField(
-                  key: const Key('signUp_passwordInput_textField'),
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    errorText: state.passwordStatus == PasswordStatus.invalid
-                        ? state.passwordMessage
-                        : null,
-                  ),
-                  onChanged: (String value) {
-                    signUpBloc.add(PasswordChanged(value));
-                  },
-                ),
-                const SizedBox(height: 8.0),
-                ElevatedButton(
-                  key: const Key('signUp_continue_elevatedButton'),
-                  onPressed: signUpBloc.state.formStatus ==
-                          FormStatus.submissionInProgress
-                      ? null
-                      : () {
-                          signUpBloc.add(SignUpSubmitted());
-                        },
-                  child: const Text('Sign Up'),
-                ),
-                ElevatedButton(
-                  onPressed: () => context.go('/sign-in'), 
-                  child: const Text('Ya tienes cuenta? Inicia sesión'))
-              ],
+  Widget _buildLoginForm(BuildContext context) {
+    return BlocBuilder<SignInBloc, SignInState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            TextFormField(
+              key: const Key('emailField'),
+              onChanged: (value) => context.read<SignInBloc>().add(EmailChanged(value)),
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: 'Correo electrónico',
+                errorText: state.emailStatus is InvalidEmailStatus ? state.emailStatus.message : null,
+                prefixIcon: const Icon(Icons.email_outlined),
+              ),
             ),
-          );
-        },
-      ),
+            const SizedBox(height: 24),
+            TextFormField(
+              key: const Key('passwordField'),
+              onChanged: (value) => context.read<SignInBloc>().add(PasswordChanged(value)),
+              obscureText: state.obscurePassword,
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                errorText: state.passwordStatus is InvalidPasswordStatus ? state.passwordStatus.message : null,
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(state.obscurePassword ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () => context.read<SignInBloc>().add(ToggleObscurePassword()),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSignUpButton(BuildContext context) {
+    return BlocBuilder<SignInBloc, SignInState>(
+      builder: (context, state) {
+        if (state.formStatus is SubmissionInProgress) {
+          return const CircularProgressIndicator();
+        }
+
+        return ElevatedButton(
+          onPressed: () => context.read<SignInBloc>().add(SignInSubmitted()),
+          child: const Text('Crear Cuenta'),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoginLink(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          '¿Ya tienes cuenta? ',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Colors.grey.shade600,
+          ),
+        ),
+        GestureDetector(
+          onTap: () => context.go('/sign-in'),
+          child: Text(
+            'Iniciar sesión',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.w600,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

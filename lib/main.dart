@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_bloc.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_bloc.dart';
 import 'firebase_options.dart';
 import 'injection.dart';
-import 'features/auth/domain/repositories/auth_repository.dart';
-import 'features/auth/domain/entities/auth_user.dart';
 import 'app_router.dart';
+import 'app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,31 +14,22 @@ Future<void> main() async {
 
   await initDependencies();
 
-  final authRepository = sl<AuthRepository>();
-  final authUser = await authRepository.authUser.first;
-
-  runApp(App(authRepository: authRepository, authUser: authUser));
+  runApp(App());
 }
 
 class App extends StatelessWidget {
-  const App({
-    super.key,
-    required this.authRepository,
-    this.authUser,
-  });
-
-  final AuthRepository authRepository;
-  final AuthUser? authUser;
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
+    return MultiBlocProvider(
       providers: [
-        RepositoryProvider.value(value: authRepository),
+        BlocProvider<SignInBloc>(create: (_) => sl<SignInBloc>()),
+        BlocProvider<SignUpBloc>(create: (_) => sl<SignUpBloc>()),
       ],
       child: MaterialApp.router(
         title: 'PupusasTrack',
-        theme: ThemeData.light(useMaterial3: true),
+        theme: AppTheme.lightTheme,
         routerConfig: AppRouter.router,
       ),
     );

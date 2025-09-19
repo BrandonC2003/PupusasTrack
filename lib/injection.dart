@@ -1,4 +1,8 @@
 import 'package:get_it/get_it.dart';
+import 'package:pupusas_track/features/auth/domain/use_cases/sign_in_use_case.dart';
+import 'package:pupusas_track/features/auth/domain/use_cases/sign_up_use_case.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_bloc.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_bloc.dart';
 import 'features/auth/data/data_sources/auth_local_data_source.dart';
 import 'features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'features/auth/data/data_sources/auth_remote_data_source_firebase.dart';
@@ -18,5 +22,22 @@ Future<void> initDependencies() async {
       localDataSource: sl(),
       remoteDataSource: sl(),
     ),
+  );
+
+  // Use Cases
+  sl.registerLazySingleton(() => SignInUseCase(sl()));
+  sl.registerLazySingleton(() => SignUpUseCase(sl()));
+
+  // Blocs
+  sl.registerFactory(
+    () => SignInBloc(
+      signInUseCase: sl(),
+    )
+  );
+
+  sl.registerFactory(
+    () => SignUpBloc(
+      signUpUseCase: sl(),
+    )
   );
 }

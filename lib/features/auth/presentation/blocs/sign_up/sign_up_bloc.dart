@@ -16,8 +16,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       if (event.password.isEmpty) {
         emit(
           state.copyWith(
-            passwordStatus: PasswordStatus.invalid,
-            passwordMessage: "Ingrese la contraseña",
+            passwordStatus: InvalidPasswordStatus(message: "Ingrese la contraseña")
           ),
         );
         return;
@@ -25,8 +24,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       emit(
         state.copyWith(
           password: event.password,
-          passwordStatus: PasswordStatus.valid,
-          passwordMessage: null,
+          passwordStatus: ValidPasswordStatus(),
         ),
       );
     });
@@ -39,8 +37,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       if (!emailRegExp.hasMatch(event.email)) {
         emit(
           state.copyWith(
-            emailStatus: EmailStatus.invalid,
-            emailMessage: "Dirección de correo inválida",
+            emailStatus: InvalidEmailStatus(message: "Dirección de correo inválida"),
           ),
         );
         return;
@@ -49,28 +46,27 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       emit(
         state.copyWith(
           email: event.email,
-          emailStatus: EmailStatus.valid,
-          emailMessage: null,
+          emailStatus: ValidEmailStatus(),
         ),
       );
     });
 
     on<SignUpSubmitted>((event, emit) async {
-      if (!(state.emailStatus == EmailStatus.valid) ||
-          !(state.passwordStatus == PasswordStatus.valid)) {
-        emit(state.copyWith(formStatus: FormStatus.invalid));
-        emit(state.copyWith(formStatus: FormStatus.initial));
+      if (state.emailStatus is! ValidEmailStatus ||
+          state.passwordStatus is! ValidPasswordStatus) {
+        emit(state.copyWith(formStatus: InvalidFormStatus(message: "Completa los campos correctamente")));
+        emit(state.copyWith(formStatus: InitialFormStatus()));
         return;
       }
 
-      emit(state.copyWith(formStatus: FormStatus.submissionInProgress));
+      emit(state.copyWith(formStatus: SubmissionInProgress()));
       try {
         await _signUpUseCase(
           SignUpParams(email: state.email!, password: state.password!),
         );
-        emit(state.copyWith(formStatus: FormStatus.submissionSuccess));
+        emit(state.copyWith(formStatus: SubmissionSuccess(message: "Usuario registrado exitosamente")));
       } catch (err) {
-        emit(state.copyWith(formStatus: FormStatus.submissionFailure));
+        emit(state.copyWith(formStatus: SubmissionFailure(message: err.toString())));
       }
     });
   }

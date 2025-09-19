@@ -4,7 +4,7 @@ import '../repositories/auth_repository.dart';
 class SignUpUseCase {
   final AuthRepository authRepository;
 
-  SignUpUseCase({required this.authRepository});
+  SignUpUseCase(this.authRepository);
 
   Future<AuthUser> call(SignUpParams params) async {
     try {
