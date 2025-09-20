@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_bloc.dart';
-import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_event.dart';
-import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_state.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/confirmar_password_status.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/nombre_status.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/pupuseria_id_status.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_bloc.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_event.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/sign_up/sign_up_state.dart';
+import 'package:pupusas_track/injection.dart';
 
 import '../blocs/email_status.dart';
 import '../blocs/form_status.dart';
 import '../blocs/password_status.dart';
 
 class SignUpScreen extends StatefulWidget {
-
   const SignUpScreen({super.key});
 
   @override
@@ -20,45 +23,49 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocListener<SignInBloc, SignInState>(
-        listener: (context, state) {
-          if (state.formStatus is SubmissionSuccess) {
-            // Navegar a home cuando el login es exitoso
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.formStatus.message)),
-            );
-          }
+    return BlocProvider(
+      create: (_) => sl<SignUpBloc>(),
+      child: Scaffold(
+        body: BlocListener<SignUpBloc, SignUpState>(
+          listener: (context, state) {
+            if (state.formStatus is SubmissionSuccess) {
+              // Navegar a home cuando el login es exitoso
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.formStatus.message)));
+            }
 
-           if (state.formStatus is SubmissionFailure || state.formStatus is InvalidFormStatus) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.formStatus.message)),
-            );
-          }
-        },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 32),
-              
-              // Logo y título
-              _buildHeader(context),
-              
-              const SizedBox(height: 48),
-              
-              // Formulario
-              _buildLoginForm(context),
-              
-              const SizedBox(height: 24),
-              
-              // Botón de login
-              _buildSignUpButton(context),
-              
-              const SizedBox(height: 32),
-              
-              _buildLoginLink(context)
-            ],
+            if (state.formStatus is SubmissionFailure ||
+                state.formStatus is InvalidFormStatus) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.formStatus.message)));
+            }
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 32),
+
+                // Logo y título
+                _buildHeader(context),
+
+                const SizedBox(height: 48),
+
+                // Formulario
+                _buildLoginForm(context),
+
+                const SizedBox(height: 24),
+
+                // Botón de login
+                _buildSignUpButton(context),
+
+                const SizedBox(height: 32),
+
+                _buildLoginLink(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -104,9 +111,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         const SizedBox(height: 8),
         Text(
           'Únete a PupusasTrack',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Colors.grey.shade600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: Colors.grey.shade600),
         ),
         const SizedBox(height: 4),
         Text(
@@ -121,33 +128,99 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget _buildLoginForm(BuildContext context) {
-    return BlocBuilder<SignInBloc, SignInState>(
+    return BlocBuilder<SignUpBloc, SignUpState>(
       builder: (context, state) {
         return Column(
           children: [
             TextFormField(
+              key: const Key('nombreField'),
+              onChanged: (value) =>
+                  context.read<SignUpBloc>().add(NombreChanged(value)),
+              keyboardType: TextInputType.name,
+              decoration: InputDecoration(
+                labelText: 'Nombre Completo',
+                errorText: state.nombreStatus is InvalidNombreStatus
+                    ? state.nombreStatus.message
+                    : null,
+                prefixIcon: const Icon(Icons.person_outline),
+              ),
+            ),
+            const SizedBox(height: 24),
+            TextFormField(
               key: const Key('emailField'),
-              onChanged: (value) => context.read<SignInBloc>().add(EmailChanged(value)),
+              onChanged: (value) =>
+                  context.read<SignUpBloc>().add(EmailChanged(value)),
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: 'Correo electrónico',
-                errorText: state.emailStatus is InvalidEmailStatus ? state.emailStatus.message : null,
+                errorText: state.emailStatus is InvalidEmailStatus
+                    ? state.emailStatus.message
+                    : null,
                 prefixIcon: const Icon(Icons.email_outlined),
               ),
             ),
             const SizedBox(height: 24),
             TextFormField(
               key: const Key('passwordField'),
-              onChanged: (value) => context.read<SignInBloc>().add(PasswordChanged(value)),
+              onChanged: (value) =>
+                  context.read<SignUpBloc>().add(PasswordChanged(value)),
               obscureText: state.obscurePassword,
               decoration: InputDecoration(
                 labelText: 'Contraseña',
-                errorText: state.passwordStatus is InvalidPasswordStatus ? state.passwordStatus.message : null,
+                errorText: state.passwordStatus is InvalidPasswordStatus
+                    ? state.passwordStatus.message
+                    : null,
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
-                  icon: Icon(state.obscurePassword ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () => context.read<SignInBloc>().add(ToggleObscurePassword()),
+                  icon: Icon(
+                    state.obscurePassword
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: () =>
+                      context.read<SignUpBloc>().add(ToggleObscurePassword()),
                 ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            TextFormField(
+              key: const Key('confirmPasswordField'),
+              onChanged: (value) =>
+                  context.read<SignUpBloc>().add(ConfirmPasswordChanged(value)),
+              obscureText: state.obscureConfirmPassword,
+              decoration: InputDecoration(
+                labelText: 'Confirmar contraseña',
+                errorText:
+                    state.confirmarPasswordStatus
+                        is InvalidConfirmarPasswordStatus
+                    ? state.confirmarPasswordStatus.message
+                    : null,
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    state.obscureConfirmPassword
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: () => context.read<SignUpBloc>().add(
+                    ToggleObscureConfirmPassword(),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            TextFormField(
+              key: const Key('idPupuseriaField'),
+              onChanged: (value) =>
+                  context.read<SignUpBloc>().add(PupuseriaIdChanged(value)),
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                labelText: 'ID Pupusería',
+                helperText: "Si no tienes un ID, puedes dejar este campo vacío",
+                errorText: state.idPupuseriaStatus is InvalidPupuseriaIdStatus
+                    ? state.idPupuseriaStatus.message
+                    : null,
+                prefixIcon: const Icon(Icons.tag_sharp),
               ),
             ),
           ],
@@ -157,14 +230,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget _buildSignUpButton(BuildContext context) {
-    return BlocBuilder<SignInBloc, SignInState>(
+    return BlocBuilder<SignUpBloc, SignUpState>(
       builder: (context, state) {
         if (state.formStatus is SubmissionInProgress) {
           return const CircularProgressIndicator();
         }
 
         return ElevatedButton(
-          onPressed: () => context.read<SignInBloc>().add(SignInSubmitted()),
+          onPressed: () => context.read<SignUpBloc>().add(SignUpSubmitted()),
           child: const Text('Crear Cuenta'),
         );
       },
@@ -177,12 +250,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
       children: [
         Text(
           '¿Ya tienes cuenta? ',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.grey.shade600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
         ),
         GestureDetector(
-          onTap: () => context.go('/sign-in'),
+          onTap: () {
+            context.go('/sign-in');
+          },
           child: Text(
             'Iniciar sesión',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
