@@ -119,10 +119,11 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       try {
         await _signUpUseCase(
           SignUpParams(
-              email: state.email!, 
-              password: state.password!,
-              nombre: state.nombre!,
-              idPupuseria: state.idPupuseria!),
+            email: state.email!,
+            password: state.password!,
+            nombre: state.nombre!,
+            idPupuseria: state.idPupuseria,
+          ),
         );
         emit(
           state.copyWith(
@@ -131,20 +132,18 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             ),
           ),
         );
-      } on ValidationError catch (error){
+      } on ValidationError catch (error) {
         emit(
-          state.copyWith(
-            formStatus: SubmissionFailure(message: error.message),
-          ),
+          state.copyWith(formStatus: SubmissionFailure(message: error.message)),
         );
-      }
-      catch (err) {
+      } catch (err) {
         emit(
           state.copyWith(
             formStatus: SubmissionFailure(message: err.toString()),
           ),
         );
       }
+      emit(state.copyWith(formStatus: InitialFormStatus()));
     });
   }
 }

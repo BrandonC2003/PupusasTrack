@@ -12,7 +12,7 @@ class SignUpState {
   final String? password;
   final String? confirmPassword;
   final String? nombre;
-  final String? idPupuseria;
+  final String idPupuseria;
   final bool obscurePassword;
   final bool obscureConfirmPassword;
 
@@ -29,7 +29,7 @@ class SignUpState {
     this.password,
     this.confirmPassword,
     this.nombre,
-    this.idPupuseria,
+    this.idPupuseria = '',
     this.obscurePassword = true,
     this.obscureConfirmPassword = true,
     this.emailStatus = const UnknownEmailStatus(),
