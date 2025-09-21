@@ -8,27 +8,30 @@ class UserRepositoryImpl implements UserRepository {
   static final _nombrecoleccion = 'usuarios';
 
   UserRepositoryImpl({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<void> createUser(UserEntity user) async {
-    final userModel = user as UserModel;
-    await _firestore.collection(_nombrecoleccion).add(userModel.toMap());
+    await _firestore
+        .collection(_nombrecoleccion)
+        .add(UserModel.fromEntity(user).toMap());
   }
 
   @override
   Future<UserEntity?> getUser(String id) async {
     final doc = await _firestore.collection(_nombrecoleccion).doc(id).get();
     if (doc.exists && doc.data() != null) {
-  return UserModel.fromMap(doc.data()!) as UserEntity;
+      return UserModel.fromMap(doc.data()!).toEntity();
     }
     return null;
   }
 
   @override
   Future<void> updateUser(String id, UserEntity user) async {
-    final userModel = user as UserModel;
-    await _firestore.collection(_nombrecoleccion).doc(id).update(userModel.toMap());
+    await _firestore
+        .collection(_nombrecoleccion)
+        .doc(id)
+        .update(UserModel.fromEntity(user).toMap());
   }
 
   @override

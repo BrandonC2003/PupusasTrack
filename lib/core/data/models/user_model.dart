@@ -1,9 +1,11 @@
 import '../../domain/entities/user_entity.dart';
 
-class UserModel extends UserEntity {
+class UserModel  {
+  final String nombre;
+  final String idPupuseria;
   UserModel({
-    required super.nombre,
-    required super.idPupuseria,
+    required this.nombre,
+    required this.idPupuseria,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -13,10 +15,19 @@ class UserModel extends UserEntity {
     );
   }
 
+  factory UserModel.fromEntity(UserEntity entity){
+    return UserModel(nombre: entity.nombre, idPupuseria: entity.idPupuseria);
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'Nombre': nombre,
       'idPupuseria': idPupuseria,
     };
   }
+
+  UserEntity toEntity(){
+    return UserEntity(nombre: nombre, idPupuseria: idPupuseria);
+  }
+
 }

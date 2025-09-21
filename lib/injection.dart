@@ -1,4 +1,8 @@
 import 'package:get_it/get_it.dart';
+import 'package:pupusas_track/core/data/repositories/pupuseria_repository_impl.dart';
+import 'package:pupusas_track/core/data/repositories/user_repository_impl.dart';
+import 'package:pupusas_track/core/domain/repositories/pupuseria_repository.dart';
+import 'package:pupusas_track/core/domain/repositories/user_repository.dart';
 import 'package:pupusas_track/features/auth/domain/use_cases/sign_in_use_case.dart';
 import 'package:pupusas_track/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_bloc.dart';
@@ -24,9 +28,24 @@ Future<void> initDependencies() async {
     ),
   );
 
+  sl.registerLazySingleton<UserRepository>(
+    () => UserRepositoryImpl()
+  );
+
+  sl.registerLazySingleton<PupuseriaRepository>(
+    () => PupuseriaRepositoryImpl()
+  );
+
   // Use Cases
   sl.registerLazySingleton(() => SignInUseCase(sl()));
-  sl.registerLazySingleton(() => SignUpUseCase(sl()));
+  
+  sl.registerLazySingleton(
+    () => SignUpUseCase(
+      authRepository: sl(),
+      userRepository: sl(),
+      pupuseriaRepository: sl()
+      )
+  );
 
   // Blocs
   sl.registerFactory(

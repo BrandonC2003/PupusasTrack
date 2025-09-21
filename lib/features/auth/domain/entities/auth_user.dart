@@ -13,6 +13,22 @@ class AuthUser {
     this.idPupuseria,
   });
 
+  AuthUser copyWith({
+    String? id,
+    String? email,
+    String? name,
+    String? photoURL,
+    String? idPupuseria
+  }){
+    return AuthUser(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      photoURL: photoURL ?? this.photoURL,
+      idPupuseria: idPupuseria ?? this.idPupuseria
+    );
+  }
+
   static const AuthUser empty = AuthUser(
     id: '',
     name: '',

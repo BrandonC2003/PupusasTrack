@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pupusas_track/core/errors/validation_error.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/confirmar_password_status.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/nombre_status.dart';
 import '../../../domain/use_cases/sign_up_use_case.dart';
@@ -117,7 +118,11 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       emit(state.copyWith(formStatus: SubmissionInProgress()));
       try {
         await _signUpUseCase(
-          SignUpParams(email: state.email!, password: state.password!),
+          SignUpParams(
+              email: state.email!, 
+              password: state.password!,
+              nombre: state.nombre!,
+              idPupuseria: state.idPupuseria!),
         );
         emit(
           state.copyWith(
@@ -126,7 +131,14 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             ),
           ),
         );
-      } catch (err) {
+      } on ValidationError catch (error){
+        emit(
+          state.copyWith(
+            formStatus: SubmissionFailure(message: error.message),
+          ),
+        );
+      }
+      catch (err) {
         emit(
           state.copyWith(
             formStatus: SubmissionFailure(message: err.toString()),
