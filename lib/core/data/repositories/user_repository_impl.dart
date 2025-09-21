@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../domain/entities/user_entity.dart';
 import '../models/user_model.dart';
-import '../domain/user_repository.dart';
+import '../../domain/repositories/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final FirebaseFirestore firestore;
@@ -8,22 +9,24 @@ class UserRepositoryImpl implements UserRepository {
       : firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
-  Future<void> createUser(UserModel user) async {
-    await firestore.collection('usuarios').add(user.toMap());
+  Future<void> createUser(UserEntity user) async {
+    final userModel = user as UserModel;
+    await firestore.collection('usuarios').add(userModel.toMap());
   }
 
   @override
-  Future<UserModel?> getUser(String id) async {
+  Future<UserEntity?> getUser(String id) async {
     final doc = await firestore.collection('usuarios').doc(id).get();
     if (doc.exists && doc.data() != null) {
-      return UserModel.fromMap(doc.data()!);
+  return UserModel.fromMap(doc.data()!) as UserEntity;
     }
     return null;
   }
 
   @override
-  Future<void> updateUser(String id, UserModel user) async {
-    await firestore.collection('usuarios').doc(id).update(user.toMap());
+  Future<void> updateUser(String id, UserEntity user) async {
+    final userModel = user as UserModel;
+    await firestore.collection('usuarios').doc(id).update(userModel.toMap());
   }
 
   @override
