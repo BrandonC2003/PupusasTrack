@@ -2,7 +2,7 @@ import '../models/auth_user_model.dart';
 import 'auth_remote_data_source.dart';
 
 class AuthRemoteDataSourceFake implements AuthRemoteDataSource {
-  static const fakeUser = AuthUserModel(
+  static final fakeUser = AuthUserModel(
     id: 'fake-user-id',
     email: 'fake-user-email',
     name: 'fake-user-name',

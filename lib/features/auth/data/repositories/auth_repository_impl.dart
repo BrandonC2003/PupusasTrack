@@ -21,7 +21,7 @@ class AuthRepositoryImpl implements AuthRepository {
         localDataSource.write(key: 'user', value: null);
       }
 
-      return authUserModel == null ? AuthUser.empty : authUserModel.toEntity();
+      return authUserModel ?? AuthUser.empty;
     });
   }
 
@@ -37,7 +37,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     localDataSource.write(key: 'user', value: authModel);
 
-    return authModel.toEntity();
+    return authModel;
   }
 
   @override
@@ -52,7 +52,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     localDataSource.write(key: 'user', value: authModel);
 
-    return authModel.toEntity();
+    return authModel;
   }
 
   @override
