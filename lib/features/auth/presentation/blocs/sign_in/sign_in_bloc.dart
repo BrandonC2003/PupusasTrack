@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pupusas_track/core/utils/firebase_auth_error_handler.dart';
 import '../../../domain/use_cases/sign_in_use_case.dart';
 import '../email_status.dart';
 import '../form_status.dart';
@@ -68,8 +69,10 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           SignInParams(email: state.email!, password: state.password!),
         );
         emit(state.copyWith(formStatus: SubmissionSuccess(message: "Inicio de sesión exitoso")));
-      } catch (err) {
-        emit(state.copyWith(formStatus: SubmissionFailure(message: "Las credenciales ingresadas son incorrectas")));
+      }
+      catch (err) {
+        String friendlyMessage = FirebaseAuthErrorHandler.getGenericErrorMessage(err);
+        emit(state.copyWith(formStatus: SubmissionFailure(message: friendlyMessage)));
       }
       emit(state.copyWith(formStatus: InitialFormStatus()));
     });

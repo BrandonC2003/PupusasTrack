@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pupusas_track/core/errors/validation_error.dart';
+import 'package:pupusas_track/core/utils/firebase_auth_error_handler.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/confirmar_password_status.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/nombre_status.dart';
 import '../../../domain/use_cases/sign_up_use_case.dart';
@@ -137,9 +138,10 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
           state.copyWith(formStatus: SubmissionFailure(message: error.message)),
         );
       } catch (err) {
+        String friendlyMessage = FirebaseAuthErrorHandler.getGenericErrorMessage(err);
         emit(
           state.copyWith(
-            formStatus: SubmissionFailure(message: err.toString()),
+            formStatus: SubmissionFailure(message: friendlyMessage),
           ),
         );
       }
