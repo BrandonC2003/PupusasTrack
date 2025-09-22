@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'injection.dart';
-import 'app_router.dart';
-import 'app_theme.dart';
+import 'core/routes/app_router.dart';
+import 'core/themes/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

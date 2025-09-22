@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pupusas_track/core/routes/app_routes.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_bloc.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_event.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/sign_in/sign_in_state.dart';
@@ -78,7 +79,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 const SizedBox(height: 32),
 
                 OutlinedButton(
-                  onPressed: () => context.go('/sign-up'),
+                  onPressed: () => context.go(AppRoutes.signUp),
                   child: const Text('Crear nueva cuenta'),
                 ),
               ],

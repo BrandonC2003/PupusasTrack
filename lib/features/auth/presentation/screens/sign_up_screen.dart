@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pupusas_track/core/routes/app_routes.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/confirmar_password_status.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/nombre_status.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/pupuseria_id_status.dart';
@@ -29,10 +30,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         body: BlocListener<SignUpBloc, SignUpState>(
           listener: (context, state) {
             if (state.formStatus is SubmissionSuccess) {
-              // Navegar a home cuando el login es exitoso
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.formStatus.message)));
+              // Navegar a signIn cuando el signUp es exitoso
+              context.go(AppRoutes.signIn);
             }
 
             if (state.formStatus is SubmissionFailure ||
@@ -256,7 +255,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         GestureDetector(
           onTap: () {
-            context.go('/sign-in');
+            context.go(AppRoutes.signIn);
           },
           child: Text(
             'Iniciar sesión',
