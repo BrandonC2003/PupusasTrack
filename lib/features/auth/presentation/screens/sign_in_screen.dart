@@ -26,13 +26,6 @@ class _SignInScreenState extends State<SignInScreen> {
       child: Scaffold(
         body: BlocListener<SignInBloc, SignInState>(
           listener: (context, state) {
-            if (state.formStatus is SubmissionSuccess) {
-              // Navegar a home cuando el login es exitoso
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.formStatus.message)));
-            }
-
             if (state.formStatus is SubmissionFailure ||
                 state.formStatus is InvalidFormStatus) {
               ScaffoldMessenger.of(

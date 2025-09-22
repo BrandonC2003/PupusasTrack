@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc.dart';
 import 'firebase_options.dart';
 import 'injection.dart';
 import 'core/routes/app_router.dart';
@@ -15,14 +17,18 @@ Future<void> main() async {
 }
 
 class App extends StatelessWidget {
-  const App({super.key});
-
+  App({super.key});
+  final authBloc = sl<AuthBloc>();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'PupusasTrack',
-      theme: AppTheme.lightTheme,
-      routerConfig: AppRouter.router,
+    final appRouter = AppRouter(authBloc);
+    return BlocProvider(
+      create: (_) => authBloc,
+      child: MaterialApp.router(
+        title: 'PupusasTrack',
+        theme: AppTheme.lightTheme,
+        routerConfig: appRouter.router,
+      ),
     );
   }
 }
