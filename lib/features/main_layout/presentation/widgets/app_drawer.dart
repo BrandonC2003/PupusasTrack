@@ -8,6 +8,7 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String currentRoute = GoRouterState.of(context).matchedLocation;
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -37,7 +38,7 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Inicio'),
-            selected: true,
+            selected: currentRoute == AppRoutes.home,
             onTap: () {
               context.pop();
               context.go(AppRoutes.home);
@@ -47,18 +48,40 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.restaurant_menu),
             title: const Text('Catálogo de productos'),
+            selected: currentRoute == AppRoutes.catalogo,
             onTap: () {
               context.pop();
-              context.go('/catalog');
+              context.go(AppRoutes.catalogo);
             },
           ),
 
           ListTile(
             leading: const Icon(Icons.checklist),
             title: const Text('Pedidos'),
+            selected: currentRoute == AppRoutes.pedidos,
             onTap: () {
               context.pop();
-              context.go('/pedidos');
+              context.go(AppRoutes.pedidos);
+            },
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.attach_money),
+            title: const Text('Registro diario'),
+            selected: currentRoute == AppRoutes.registroDiario,
+            onTap: () {
+              context.pop();
+              context.go(AppRoutes.registroDiario);
+            },
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.bar_chart),
+            title: const Text('Informes'),
+            selected: currentRoute == AppRoutes.informes,
+            onTap: () {
+              context.pop();
+              context.go(AppRoutes.informes);
             },
           ),
 

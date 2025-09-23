@@ -4,8 +4,10 @@ import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc.da
 import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc_notifier.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_state.dart';
 import 'package:pupusas_track/features/auth/presentation/screens/sign_out_screen.dart';
+import 'package:pupusas_track/features/catalogo/presentation/screens/catalogo_screen.dart';
 import 'package:pupusas_track/features/main_layout/presentation/screens/home_screen.dart';
 import 'package:pupusas_track/features/main_layout/presentation/screens/main_layout_screen.dart';
+import 'package:pupusas_track/features/pedidos/presentation/screens/pedidos_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 
@@ -53,6 +55,14 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.home,
               builder: (context, state) => const HomeScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.catalogo,
+              builder: (context, state) => const CatalogoScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.pedidos,
+              builder: (context, state) => const PedidosScreen(),
             ),
           ],
         ),
