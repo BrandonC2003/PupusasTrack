@@ -7,4 +7,6 @@ class AppRoutes{
   static const String catalogo = '/catalogo';
   static const String informes = '/informes';
   static const String registroDiario = '/registro-diario';
+  static const String settings = '/settings';
+  static const String profile = '/profile';
 }

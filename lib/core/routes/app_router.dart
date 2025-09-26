@@ -5,9 +5,13 @@ import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc_no
 import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_state.dart';
 import 'package:pupusas_track/features/auth/presentation/screens/sign_out_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/catalogo_screen.dart';
+import 'package:pupusas_track/features/informes/presentation/screens/informes_screen.dart';
 import 'package:pupusas_track/features/main_layout/presentation/screens/home_screen.dart';
 import 'package:pupusas_track/features/main_layout/presentation/screens/main_layout_screen.dart';
 import 'package:pupusas_track/features/pedidos/presentation/screens/pedidos_screen.dart';
+import 'package:pupusas_track/features/profile/presentation/screens/profile_screen.dart';
+import 'package:pupusas_track/features/registro_diario/presentation/screens/registro_diario_screen.dart';
+import 'package:pupusas_track/features/settings/presentation/screens/settings_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 
@@ -49,6 +53,14 @@ class AppRouter {
           path: AppRoutes.signOut,
           builder: (context, state) => const SignOutScreen(),
         ),
+        GoRoute(
+          path: AppRoutes.settings,
+          builder: (context, state) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.profile,
+          builder: (context, state) => const ProfileScreen(),
+        ),
         ShellRoute(
           builder: (context, state, child) => MainLayoutScreen(child: child),
           routes: [
@@ -63,6 +75,14 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.pedidos,
               builder: (context, state) => const PedidosScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.informes,
+              builder: (context, state) => const InformesScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.registroDiario,
+              builder: (context, state) => const RegistroDiarioScreen(),
             ),
           ],
         ),

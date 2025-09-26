@@ -3,6 +3,8 @@ import 'package:pupusas_track/core/errors/validation_error.dart';
 import 'package:pupusas_track/core/utils/firebase_auth_error_handler.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/confirmar_password_status.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/nombre_status.dart';
+import 'package:pupusas_track/features/pupuseria/domain/use_cases/create_pupuseria_use_case.dart';
+import 'package:pupusas_track/features/pupuseria/domain/use_cases/exists_pupuseria_use_case.dart';
 import '../../../domain/use_cases/sign_up_use_case.dart';
 import '../email_status.dart';
 import '../form_status.dart';
@@ -11,10 +13,14 @@ import 'sign_up_event.dart';
 import 'sign_up_state.dart';
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
-  final SignUpUseCase _signUpUseCase;
-  SignUpBloc({required SignUpUseCase signUpUseCase})
-    : _signUpUseCase = signUpUseCase,
-      super(SignUpState()) {
+  final SignUpUseCase signUpUseCase;
+  final CreatePupuseriaUseCase createPupuseriaUseCase;
+  final ExistsPupuseriaUseCase existsPupuseriaUseCase;
+  SignUpBloc({
+    required this.signUpUseCase,
+    required this.createPupuseriaUseCase,
+    required this.existsPupuseriaUseCase,
+  }) : super(SignUpState()) {
     on<PasswordChanged>((event, emit) {
       if (event.password.isEmpty) {
         emit(
@@ -118,12 +124,32 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
 
       emit(state.copyWith(formStatus: SubmissionInProgress()));
       try {
-        await _signUpUseCase(
+
+        if (state.idPupuseria != '') {
+          var existsPupuseria = await existsPupuseriaUseCase(state.idPupuseria);
+          if (!existsPupuseria) {
+            emit(
+              state.copyWith(
+                formStatus: InvalidFormStatus(
+                  message: 'El id de pupuseria ingresado no ha sido encontrado',
+                ),
+              ),
+            );
+
+            emit(state.copyWith(formStatus: InitialFormStatus()));
+
+            return;
+          }
+        }
+
+        var idPupuseria = await createPupuseriaUseCase();
+
+        await signUpUseCase(
           SignUpParams(
             email: state.email!,
             password: state.password!,
             nombre: state.nombre!,
-            idPupuseria: state.idPupuseria,
+            idPupuseria: idPupuseria,
           ),
         );
         emit(
@@ -138,7 +164,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
           state.copyWith(formStatus: SubmissionFailure(message: error.message)),
         );
       } catch (err) {
-        String friendlyMessage = FirebaseAuthErrorHandler.getGenericErrorMessage(err);
+        String friendlyMessage =
+            FirebaseAuthErrorHandler.getGenericErrorMessage(err);
         emit(
           state.copyWith(
             formStatus: SubmissionFailure(message: friendlyMessage),

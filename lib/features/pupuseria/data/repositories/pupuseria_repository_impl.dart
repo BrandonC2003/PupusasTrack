@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pupusas_track/core/domain/repositories/pupuseria_repository.dart';
+import 'package:pupusas_track/features/pupuseria/domain/repositories/pupuseria_repository.dart';
 
 class PupuseriaRepositoryImpl extends PupuseriaRepository {
   final FirebaseFirestore _firestore;
