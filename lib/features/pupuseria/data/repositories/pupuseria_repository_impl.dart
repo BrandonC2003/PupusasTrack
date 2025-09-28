@@ -3,7 +3,7 @@ import 'package:pupusas_track/features/pupuseria/domain/repositories/pupuseria_r
 
 class PupuseriaRepositoryImpl extends PupuseriaRepository {
   final FirebaseFirestore _firestore;
-  static final String _nombreColeccion = 'pupuserias';
+  static const String _nombreColeccion = 'pupuserias';
   PupuseriaRepositoryImpl({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
       

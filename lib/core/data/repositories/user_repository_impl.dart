@@ -4,22 +4,21 @@ import '../models/user_model.dart';
 import '../../domain/repositories/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore firestore;
   static final _nombrecoleccion = 'usuarios';
 
-  UserRepositoryImpl({FirebaseFirestore? firestore})
-    : _firestore = firestore ?? FirebaseFirestore.instance;
+  UserRepositoryImpl({required this.firestore});
 
   @override
   Future<void> createUser(UserEntity user) async {
-    await _firestore
+    await firestore
         .collection(_nombrecoleccion)
         .add(UserModel.fromEntity(user).toMap());
   }
 
   @override
   Future<UserEntity?> getUser(String id) async {
-    final doc = await _firestore.collection(_nombrecoleccion).doc(id).get();
+    final doc = await firestore.collection(_nombrecoleccion).doc(id).get();
     if (doc.exists && doc.data() != null) {
       return UserModel.fromMap(doc.data()!).toEntity();
     }
@@ -28,7 +27,7 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<void> updateUser(String id, UserEntity user) async {
-    await _firestore
+    await firestore
         .collection(_nombrecoleccion)
         .doc(id)
         .update(UserModel.fromEntity(user).toMap());
@@ -36,6 +35,6 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<void> deleteUser(String id) async {
-    await _firestore.collection(_nombrecoleccion).doc(id).delete();
+    await firestore.collection(_nombrecoleccion).doc(id).delete();
   }
 }
