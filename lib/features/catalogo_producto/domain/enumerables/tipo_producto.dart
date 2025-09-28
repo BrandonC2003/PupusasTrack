@@ -1,5 +1,4 @@
 enum TipoProducto {
   pupusa,
-  bebida,
-  material
+  bebida
 }
