@@ -4,6 +4,16 @@ import 'package:pupusas_track/core/data/services/session_service_impl.dart';
 import 'package:pupusas_track/core/domain/services/session_service.dart';
 import 'package:pupusas_track/features/catalogo_producto/data/repository/catalogo_producto_repository_impl.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/repository/catalogo_producto_repository.dart';
+import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/actualizar_producto_use_case.dart';
+import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/agregar_producto_use_case.dart';
+import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/obtener_productos_use_case.dart';
+import 'package:pupusas_track/features/material/data/repository/material_repository_impl.dart';
+import 'package:pupusas_track/features/material/domain/repository/material_repository.dart';
+import 'package:pupusas_track/features/material/domain/use_cases/actualizar_material_use_case.dart';
+import 'package:pupusas_track/features/material/domain/use_cases/crear_material_inicial_use_case.dart';
+import 'package:pupusas_track/features/material/domain/use_cases/crear_material_use_case.dart';
+import 'package:pupusas_track/features/material/domain/use_cases/eliminar_material_use_case.dart';
+import 'package:pupusas_track/features/material/domain/use_cases/obtener_materiales_use_case.dart';
 import 'package:pupusas_track/features/pupuseria/data/repositories/pupuseria_repository_impl.dart';
 import 'package:pupusas_track/core/data/repositories/user_repository_impl.dart';
 import 'package:pupusas_track/features/pupuseria/domain/repositories/pupuseria_repository.dart';
@@ -59,6 +69,10 @@ Future<void> initDependencies() async {
     () => CatalogoProductoRepositoryImpl(firestore: sl(), sessionService: sl()),
   );
 
+  sl.registerLazySingleton<MaterialRepository>(
+    () => MaterialRepositoryImpl(firestore: sl(), sessionService: sl()),
+  );
+
   // Use Cases
   sl.registerLazySingleton(() => SignInUseCase(sl(), sl(), sl()));
   sl.registerLazySingleton(
@@ -77,6 +91,38 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton(
     () => ExistsPupuseriaUseCase(pupuseriaRepository: sl()),
+  );
+
+  sl.registerLazySingleton(
+    () => ActualizarProductoUseCase(sl())
+  );
+
+  sl.registerLazySingleton(
+    () => AgregarProductoUseCase(sl())
+  );
+
+  sl.registerLazySingleton(
+    () => ObtenerProductosUseCase(sl())
+  );
+
+  sl.registerLazySingleton(
+    () => ActualizarMaterialUseCase(materialRepository: sl())
+  );
+
+  sl.registerLazySingleton(
+    () => CrearMaterialInicialUseCase(materialRepository: sl())
+  );
+
+  sl.registerLazySingleton(
+    () => CrearMaterialUseCase(materialRepository: sl())
+  );
+
+  sl.registerLazySingleton(
+    () => EliminarMaterialUseCase(materialRepository: sl())
+  );
+
+  sl.registerLazySingleton(
+    () => ObtenerMaterialesUseCase(materialRepository: sl())
   );
 
   // Blocs
