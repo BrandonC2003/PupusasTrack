@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pupusas_track/core/routes/app_routes.dart';
 import 'package:pupusas_track/core/themes/app_theme.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo_bloc.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo_event.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo_state.dart';
+import 'package:pupusas_track/features/catalogo_producto/domain/entities/catalogo_producto_entity.dart';
+import 'package:pupusas_track/features/material/domain/entities/material_entity.dart';
+import 'package:pupusas_track/injection.dart';
 
 class CatalogoScreen extends StatefulWidget {
   const CatalogoScreen({super.key});
@@ -10,33 +17,15 @@ class CatalogoScreen extends StatefulWidget {
   State<CatalogoScreen> createState() => _CatalogoScreenState();
 }
 
-class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStateMixin {
+class _CatalogoScreenState extends State<CatalogoScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   String _searchQuery = '';
-
-  // Datos de ejemplo - reemplazar con datos reales de BLoC o Provider
-  final List<PupusaItem> _pupusas = [
-    PupusaItem(id: 1, name: 'Frijol con queso', price: 1.25, isPopular: false),
-    PupusaItem(id: 2, name: 'Revueltas', price: 1.50, isPopular: false),
-    PupusaItem(id: 3, name: 'Queso', price: 1.00, isPopular: false),
-    PupusaItem(id: 4, name: 'Queso con loroco', price: 1.75, isPopular: false),
-    PupusaItem(id: 5, name: 'Pollo', price: 1.50, isPopular: false),
-    PupusaItem(id: 6, name: 'Ayote', price: 1.25, isPopular: false),
-    PupusaItem(id: 7, name: 'Camarón', price: 2.00, isPopular: false),
-    PupusaItem(id: 8, name: 'Jalapeño', price: 1.35, isPopular: false),
-  ];
-
-  final List<BebidaItem> _bebidas = [
-    BebidaItem(id: 1, name: 'Horchata', price: 0.75, size: 'Vaso'),
-    BebidaItem(id: 2, name: 'Tamarindo', price: 0.75, size: 'Vaso'),
-    BebidaItem(id: 3, name: 'Coca Cola', price: 1.00, size: '355ml'),
-    BebidaItem(id: 4, name: 'Agua', price: 0.50, size: '500ml'),
-  ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length:3, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -47,36 +36,47 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: _buildAppBar(context),
-      body: Column(
-        children: [
-          // Barra de búsqueda
-          _buildSearchBar(),
-          
-          // Tabs
-          _buildTabBar(),
-          
-          // Contenido de tabs
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildPupusasTab(),
-                _buildBebidasTab(),
-                _buildPupusasTab()
-              ],
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddItemDialog(context),
-        backgroundColor: AppTheme.azulSalvador,
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
+    return BlocProvider(
+      create: (context) => sl<CatalogoBloc>()..add(CargarProductos()),
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade50,
+        appBar: _buildAppBar(context),
+        body: BlocBuilder<CatalogoBloc, CatalogoState>(
+          builder: (context, state) {
+            if (state is CatalogoLoading) {
+              return Center(child: CircularProgressIndicator());
+            } else if (state is CatalogoLoaded) {
+              return Column(
+                children: [
+                  // Barra de búsqueda
+                  _buildSearchBar(),
+
+                  // Tabs
+                  _buildTabBar(),
+
+                  // Contenido de tabs
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildPupusasTab(state.pupusas),
+                        _buildBebidasTab(state.bebidas),
+                        _buildMaterialesTab(state.materiales),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            } else if(state is CatalogoError){
+              return Center(child: Text("Error: ${state.errorMessage}"));
+            }
+            return Container();
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showAddItemDialog(context),
+          backgroundColor: AppTheme.azulSalvador,
+          child: const Icon(Icons.add, color: Colors.white),
         ),
       ),
     );
@@ -92,10 +92,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
       ),
       title: const Text(
         'Catálogo',
-        style: TextStyle(
-          color: Colors.black87,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
       ),
       centerTitle: true,
     );
@@ -116,7 +113,10 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
         ),
         onChanged: (value) {
           setState(() {
@@ -148,9 +148,13 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildPupusasTab() {
-    List<PupusaItem> filteredPupusas = _pupusas.where((pupusa) =>
-        pupusa.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+  Widget _buildPupusasTab(List<CatalogoProductoEntity> pupusas) {
+    List<CatalogoProductoEntity> filteredPupusas = pupusas
+        .where(
+          (pupusa) =>
+              pupusa.nombre.toLowerCase().contains(_searchQuery.toLowerCase()),
+        )
+        .toList();
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -161,9 +165,13 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildBebidasTab() {
-    List<BebidaItem> filteredBebidas = _bebidas.where((bebida) =>
-        bebida.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+  Widget _buildBebidasTab(List<CatalogoProductoEntity> bebidas) {
+    List<CatalogoProductoEntity> filteredBebidas = bebidas
+        .where(
+          (bebida) =>
+              bebida.nombre.toLowerCase().contains(_searchQuery.toLowerCase()),
+        )
+        .toList();
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -174,7 +182,24 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildPupusaCard(PupusaItem pupusa) {
+  Widget _buildMaterialesTab(List<MaterialEntity> materiales) {
+    List<MaterialEntity> filteredMateriales = materiales
+        .where(
+          (material) =>
+              material.nombre.toLowerCase().contains(_searchQuery.toLowerCase()),
+        )
+        .toList();
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: filteredMateriales.length,
+      itemBuilder: (context, index) {
+        return _buildMaterialCard(filteredMateriales[index]);
+      },
+    );
+  }
+
+  Widget _buildPupusaCard(CatalogoProductoEntity pupusa) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -196,9 +221,9 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
                 child: Text('🫓', style: TextStyle(fontSize: 28)),
               ),
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             // Información de la pupusa
             Expanded(
               child: Column(
@@ -207,36 +232,18 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
                   Row(
                     children: [
                       Text(
-                        pupusa.name,
+                        pupusa.nombre,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                       ),
-                      if (pupusa.isPopular) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.rojoTomate.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            'Popular',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: AppTheme.rojoTomate,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '\$${pupusa.price.toStringAsFixed(2)}',
+                    '\$${pupusa.precio.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -246,18 +253,26 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
                 ],
               ),
             ),
-            
+
             // Botones de acción
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: Icon(Icons.edit, color: AppTheme.azulSalvador, size: 20),
+                  icon: Icon(
+                    Icons.edit,
+                    color: AppTheme.azulSalvador,
+                    size: 20,
+                  ),
                   onPressed: () => _editItem(pupusa),
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete, color: AppTheme.rojoTomate, size: 20),
-                  onPressed: () => _deleteItem(pupusa.id, pupusa.name),
+                  icon: Icon(
+                    Icons.delete,
+                    color: AppTheme.rojoTomate,
+                    size: 20,
+                  ),
+                  onPressed: () => _deleteItem(pupusa.id, pupusa.nombre),
                 ),
               ],
             ),
@@ -267,7 +282,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildBebidaCard(BebidaItem bebida) {
+  Widget _buildBebidaCard(CatalogoProductoEntity bebida) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -289,16 +304,16 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
                 child: Text('🥤', style: TextStyle(fontSize: 28)),
               ),
             ),
-            
+
             const SizedBox(width: 16),
-            
+
             // Información de la bebida
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    bebida.name,
+                    bebida.nombre,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -307,15 +322,12 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    bebida.size,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
+                    bebida.size!,
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '\$${bebida.price.toStringAsFixed(2)}',
+                    '\$${bebida.precio.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -325,18 +337,109 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
                 ],
               ),
             ),
-            
+
             // Botones de acción
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: Icon(Icons.edit, color: AppTheme.azulSalvador, size: 20),
+                  icon: Icon(
+                    Icons.edit,
+                    color: AppTheme.azulSalvador,
+                    size: 20,
+                  ),
                   onPressed: () => _editItem(bebida),
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete, color: AppTheme.rojoTomate, size: 20),
-                  onPressed: () => _deleteItem(bebida.id, bebida.name),
+                  icon: Icon(
+                    Icons.delete,
+                    color: AppTheme.rojoTomate,
+                    size: 20,
+                  ),
+                  onPressed: () => _deleteItem(bebida.id, bebida.nombre),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMaterialCard(MaterialEntity pupusa) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            // Emoji de pupusa
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: AppTheme.doradoMaiz.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: Text('🍚', style: TextStyle(fontSize: 28)),
+              ),
+            ),
+
+            const SizedBox(width: 16),
+
+            // Información del material
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        pupusa.nombre,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '\$${pupusa.descripcion}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.verdeComal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Botones de acción
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.edit,
+                    color: AppTheme.azulSalvador,
+                    size: 20,
+                  ),
+                  onPressed: () => _editItem(pupusa),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.delete,
+                    color: AppTheme.rojoTomate,
+                    size: 20,
+                  ),
+                  onPressed: () => _deleteItem(pupusa.id!, pupusa.nombre),
                 ),
               ],
             ),
@@ -367,7 +470,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            
+
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
@@ -384,7 +487,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
                 Navigator.pushNamed(context, '/add-pupusa');
               },
             ),
-            
+
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
@@ -409,12 +512,12 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
 
   void _editItem(dynamic item) {
     // Implementar edición
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Editando ${item.name}')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Editando ${item.name}')));
   }
 
-  void _deleteItem(int id, String name) {
+  void _deleteItem(String id, String name) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -429,9 +532,9 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
             onPressed: () {
               Navigator.pop(context);
               // Implementar eliminación
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('$name eliminado')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('$name eliminado')));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.rojoTomate,
@@ -442,33 +545,4 @@ class _CatalogoScreenState extends State<CatalogoScreen> with TickerProviderStat
       ),
     );
   }
-}
-
-// Modelos de datos
-class PupusaItem {
-  final int id;
-  final String name;
-  final double price;
-  final bool isPopular;
-
-  PupusaItem({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.isPopular,
-  });
-}
-
-class BebidaItem {
-  final int id;
-  final String name;
-  final double price;
-  final String size;
-
-  BebidaItem({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.size,
-  });
 }
