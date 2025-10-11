@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pupusas_track/core/routes/app_routes.dart';
 import 'package:pupusas_track/core/themes/app_theme.dart';
-import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo_bloc.dart';
-import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo_event.dart';
-import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo_state.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_bloc.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_event.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_state.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/entities/catalogo_producto_entity.dart';
 import 'package:pupusas_track/features/material/domain/entities/material_entity.dart';
 import 'package:pupusas_track/injection.dart';
@@ -500,8 +500,8 @@ class _CatalogoScreenState extends State<CatalogoScreen>
               title: const Text('Agregar Bebida'),
               subtitle: const Text('Nueva bebida al menú'),
               onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/add-bebida');
+                context.pop();
+                context.go(AppRoutes.agregarMaterial);
               },
             ),
           ],

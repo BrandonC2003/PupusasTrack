@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pupusas_track/core/data/services/session_service_impl.dart';
 import 'package:pupusas_track/core/domain/services/session_service.dart';
-import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo_bloc.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_bloc.dart';
 import 'package:pupusas_track/features/catalogo_producto/data/repository/catalogo_producto_repository_impl.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/repository/catalogo_producto_repository.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/actualizar_producto_use_case.dart';

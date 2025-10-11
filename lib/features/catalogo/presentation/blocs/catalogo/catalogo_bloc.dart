@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo_event.dart';
-import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo_state.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_event.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_state.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/enumerables/tipo_producto.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/obtener_productos_use_case.dart';
 import 'package:pupusas_track/features/material/domain/use_cases/obtener_materiales_use_case.dart';
