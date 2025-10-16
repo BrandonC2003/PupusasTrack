@@ -1,8 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pupusas_track/core/domain/services/session_service.dart';
 import 'package:pupusas_track/core/errors/validation_error.dart';
-import 'package:pupusas_track/core/utils/firebase_auth_error_handler.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/confirmar_password_status.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/nombre_status.dart';
+import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/agregar_productos_iniciales_use_case.dart';
+import 'package:pupusas_track/features/material/domain/use_cases/crear_material_inicial_use_case.dart';
 import 'package:pupusas_track/features/pupuseria/domain/use_cases/create_pupuseria_use_case.dart';
 import 'package:pupusas_track/features/pupuseria/domain/use_cases/exists_pupuseria_use_case.dart';
 import '../../../domain/use_cases/sign_up_use_case.dart';
@@ -16,10 +18,16 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   final SignUpUseCase signUpUseCase;
   final CreatePupuseriaUseCase createPupuseriaUseCase;
   final ExistsPupuseriaUseCase existsPupuseriaUseCase;
+  final AgregarProductosInicialesUseCase agregarProductosInicialesUseCase;
+  final CrearMaterialInicialUseCase crearMaterialInicialUseCase;
+  final SessionService sessionService;
   SignUpBloc({
     required this.signUpUseCase,
     required this.createPupuseriaUseCase,
     required this.existsPupuseriaUseCase,
+    required this.agregarProductosInicialesUseCase,
+    required this.crearMaterialInicialUseCase,
+    required this.sessionService,
   }) : super(SignUpState()) {
     on<PasswordChanged>((event, emit) {
       if (event.password.isEmpty) {
@@ -152,6 +160,10 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             idPupuseria: idPupuseria,
           ),
         );
+
+        await sessionService.setIdPupuseria(idPupuseria);
+        await agregarProductosInicialesUseCase();
+        await crearMaterialInicialUseCase();
         emit(
           state.copyWith(
             formStatus: SubmissionSuccess(
@@ -164,11 +176,9 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
           state.copyWith(formStatus: SubmissionFailure(message: error.message)),
         );
       } catch (err) {
-        String friendlyMessage =
-            FirebaseAuthErrorHandler.getGenericErrorMessage(err);
         emit(
           state.copyWith(
-            formStatus: SubmissionFailure(message: friendlyMessage),
+            formStatus: SubmissionFailure(message: err.toString()),
           ),
         );
       }

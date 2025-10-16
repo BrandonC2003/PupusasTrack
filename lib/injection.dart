@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pupusas_track/core/data/services/session_service_impl.dart';
 import 'package:pupusas_track/core/domain/services/session_service.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/agregar_material/agregar_material_bloc.dart';
 import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_bloc.dart';
 import 'package:pupusas_track/features/catalogo_producto/data/repository/catalogo_producto_repository_impl.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/repository/catalogo_producto_repository.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/actualizar_producto_use_case.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/agregar_producto_use_case.dart';
+import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/agregar_productos_iniciales_use_case.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/obtener_productos_use_case.dart';
 import 'package:pupusas_track/features/material/data/repository/material_repository_impl.dart';
 import 'package:pupusas_track/features/material/domain/repository/material_repository.dart';
@@ -103,6 +105,10 @@ Future<void> initDependencies() async {
   );
 
   sl.registerLazySingleton(
+    () => AgregarProductosInicialesUseCase(sl())
+  );
+
+  sl.registerLazySingleton(
     () => ObtenerProductosUseCase(sl())
   );
 
@@ -134,6 +140,9 @@ Future<void> initDependencies() async {
       signUpUseCase: sl(),
       createPupuseriaUseCase: sl(),
       existsPupuseriaUseCase: sl(),
+      agregarProductosInicialesUseCase: sl(),
+      crearMaterialInicialUseCase: sl(),
+      sessionService: sl()
     ),
   );
 
@@ -143,5 +152,9 @@ Future<void> initDependencies() async {
 
   sl.registerFactory(
     () => CatalogoBloc(obtenerProductosUseCase: sl(), obtenerMaterialesUseCase: sl())
+  );
+
+  sl.registerFactory(
+  () => AgregarMaterialBloc(agregarMaterialUseCase: sl())
   );
 }

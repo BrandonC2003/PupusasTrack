@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -229,17 +230,18 @@ class _CatalogoScreenState extends State<CatalogoScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        pupusa.nombre,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
+                  // nombre: permitir que el texto ajuste y se trunque si es necesario
+                  AutoSizeText(
+                    pupusa.nombre,
+                    maxLines: 2,
+                    minFontSize: 10,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -322,7 +324,9 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    bebida.size!,
+                    bebida.size ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 4),
@@ -381,7 +385,7 @@ class _CatalogoScreenState extends State<CatalogoScreen>
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: AppTheme.doradoMaiz.withValues(alpha: 0.2),
+                color: AppTheme.rojoTomate.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Center(
@@ -396,23 +400,27 @@ class _CatalogoScreenState extends State<CatalogoScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        pupusa.nombre,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
+                  // nombre: usar AutoSizeText para ajustar en espacios pequeños
+                  AutoSizeText(
+                    pupusa.nombre,
+                    maxLines: 2,
+                    minFontSize: 10,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '\$${pupusa.descripcion}',
+                    pupusa.descripcion,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.verdeComal,
                     ),
@@ -483,8 +491,8 @@ class _CatalogoScreenState extends State<CatalogoScreen>
               title: const Text('Agregar Pupusa'),
               subtitle: const Text('Nuevo tipo de pupusa'),
               onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/add-pupusa');
+                context.pop();
+                context.go(AppRoutes.agregarMaterial);
               },
             ),
 
@@ -499,6 +507,23 @@ class _CatalogoScreenState extends State<CatalogoScreen>
               ),
               title: const Text('Agregar Bebida'),
               subtitle: const Text('Nueva bebida al menú'),
+              onTap: () {
+                context.pop();
+                context.go(AppRoutes.agregarMaterial);
+              },
+            ),
+
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.rojoTomate.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text('🍚', style: TextStyle(fontSize: 20)),
+              ),
+              title: const Text('Agregar Material'),
+              subtitle: const Text('Nuevo material al catálogo'),
               onTap: () {
                 context.pop();
                 context.go(AppRoutes.agregarMaterial);

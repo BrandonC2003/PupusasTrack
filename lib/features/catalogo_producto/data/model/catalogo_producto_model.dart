@@ -38,11 +38,20 @@ class CatalogoProductoModel {
 
   factory CatalogoProductoModel.fromFirestore(DocumentSnapshot doc) {
     final map = doc.data() as Map<String, dynamic>;
+    // tipoProducto is stored as a String in Firestore; convert to enum
+    final tipoStr = map['tipoProducto'] as String? ?? '';
+    final tipoProducto = TipoProducto.values.firstWhere(
+      (e) => e.toString().split('.').last == tipoStr,
+      orElse: () => TipoProducto.pupusa,
+    );
+
     return CatalogoProductoModel(
       id: doc.id,
       nombre: map['nombre'] ?? '',
-      tipoProducto: map['tipoProducto'] ?? '',
+      descripcion: map['descripcion'],
+      tipoProducto: tipoProducto,
       precio: map['precio'] ?? '',
+      size: map['size'],
       descuentos: (map['descuentos'] as List<dynamic>?)
           ?.map((item) => DescuentoModel.fromMap(item))
           .toList() ?? [],
@@ -63,8 +72,10 @@ class CatalogoProductoModel {
   Map<String, dynamic> toFirestore(){
     return {
       'nombre': nombre,
-      'tipoProducto': tipoProducto,
+      'descripcion': descripcion,
+      'tipoProducto': tipoProducto.toString().split('.').last,
       'precio': precio,
+      'size': size,
       'descuentos': descuentos?.map((descuento) => descuento.toMap()),
       'disponible': disponible
     };

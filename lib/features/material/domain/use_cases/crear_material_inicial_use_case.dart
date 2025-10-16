@@ -7,8 +7,8 @@ class CrearMaterialInicialUseCase {
   CrearMaterialInicialUseCase({required this.materialRepository});
 
   Future<void> call() async{
-    var arroz = MaterialEntity(nombre: 'Arroz', descripcion: '');
-    var maiz = MaterialEntity(nombre: 'Maíz', descripcion: '');
+    var arroz = MaterialEntity(nombre: 'Arroz', descripcion: 'Masa de arroz');
+    var maiz = MaterialEntity(nombre: 'Maíz', descripcion: 'Masa de maíz');
 
     await materialRepository.crearMaterial(arroz);
     await materialRepository.crearMaterial(maiz);
