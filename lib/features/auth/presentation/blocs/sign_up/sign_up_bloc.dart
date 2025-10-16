@@ -150,7 +150,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
           }
         }
 
-        var idPupuseria = await createPupuseriaUseCase();
+        var idPupuseria = state.idPupuseria == '' ?  await createPupuseriaUseCase() : state.idPupuseria;
 
         await signUpUseCase(
           SignUpParams(
@@ -162,8 +162,12 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         );
 
         await sessionService.setIdPupuseria(idPupuseria);
-        await agregarProductosInicialesUseCase();
-        await crearMaterialInicialUseCase();
+        //Si es la primera vez que se crea una pupuseria, se agregan los productos y materiales iniciales
+        if(state.idPupuseria == ''){
+          await agregarProductosInicialesUseCase();
+          await crearMaterialInicialUseCase();
+        }
+        
         emit(
           state.copyWith(
             formStatus: SubmissionSuccess(
