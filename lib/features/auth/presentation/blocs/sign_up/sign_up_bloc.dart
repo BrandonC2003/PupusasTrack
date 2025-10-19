@@ -41,6 +41,50 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         );
         return;
       }
+
+      if(event.password.length < 8){
+        emit(
+          state.copyWith(
+            passwordStatus: InvalidPasswordStatus(
+              message: "Debe tener al menos 8 caracteres",
+            ),
+          ),
+        );
+        return;
+      }
+
+      if(!event.password.contains(RegExp(r'[a-z]'))){
+        emit(
+          state.copyWith(
+            passwordStatus: InvalidPasswordStatus(
+              message: "Debe contener al menos una letra minúscula",
+            ),
+          ),
+        );
+        return;
+      }
+
+      if(!event.password.contains(RegExp(r'[A-Z]'))){
+        emit(
+          state.copyWith(
+            passwordStatus: InvalidPasswordStatus(
+              message: "Debe contener al menos una letra mayúscula",
+            ),
+          ),
+        );
+        return;
+      }
+
+      if(!event.password.contains(RegExp(r'[0-9]'))){
+        emit(
+          state.copyWith(
+            passwordStatus: InvalidPasswordStatus(
+              message: "Debe contener al menos un número",
+            ),
+          ),
+        );
+        return;
+      }
       emit(
         state.copyWith(
           password: event.password,
