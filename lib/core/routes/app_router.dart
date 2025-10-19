@@ -5,6 +5,7 @@ import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc_no
 import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_state.dart';
 import 'package:pupusas_track/features/auth/presentation/screens/sign_out_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_material_screen.dart';
+import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_producto_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/catalogo_screen.dart';
 import 'package:pupusas_track/features/informes/presentation/screens/informes_screen.dart';
 import 'package:pupusas_track/features/main_layout/presentation/screens/home_screen.dart';
@@ -72,6 +73,10 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.catalogo,
               builder: (context, state) => const CatalogoScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.agregarProducto,
+              builder: (context, state) => const AgregarProductoScreen(),
             ),
             GoRoute(
               path: AppRoutes.agregarMaterial,

@@ -494,7 +494,7 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                     subtitle: const Text('Nuevo tipo de pupusa'),
                     onTap: () async {
                       context.pop();
-                      final result = await router.push<bool>(AppRoutes.agregarMaterial);
+                      final result = await router.push<bool>(AppRoutes.agregarProducto);
                       if (result == true) catalogoBloc.add(CargarProductos());
                     },
                   ),
