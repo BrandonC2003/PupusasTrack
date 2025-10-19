@@ -92,7 +92,7 @@ class AppDrawer extends StatelessWidget {
             title: const Text('Configuración'),
             onTap: () {
               context.pop();
-              context.go('/settings');
+              context.push('/settings');
             },
           ),
 

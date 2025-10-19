@@ -492,9 +492,10 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                     ),
                     title: const Text('Agregar Pupusa'),
                     subtitle: const Text('Nuevo tipo de pupusa'),
-                    onTap: () {
+                    onTap: () async {
                       context.pop();
-                      context.push(AppRoutes.agregarMaterial);
+                      final result = await router.push<bool>(AppRoutes.agregarMaterial);
+                      if (result == true) catalogoBloc.add(CargarProductos());
                     },
                   ),
 
@@ -509,9 +510,10 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                     ),
                     title: const Text('Agregar Bebida'),
                     subtitle: const Text('Nueva bebida al menú'),
-                    onTap: () {
+                    onTap: () async {
                       context.pop();
-                      context.push(AppRoutes.agregarMaterial);
+                      final result = await router.push<bool>(AppRoutes.agregarMaterial);
+                      if (result == true) catalogoBloc.add(CargarProductos());
                     },
                   ),
 
