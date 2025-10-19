@@ -68,17 +68,13 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                   ),
                 ],
               );
-            } else if(state is CatalogoError){
+            } else if (state is CatalogoError) {
               return Center(child: Text("Error: ${state.errorMessage}"));
             }
             return Container();
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _showAddItemDialog(context),
-          backgroundColor: AppTheme.azulSalvador,
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+        floatingActionButton: _buildCreateButtons(context),
       ),
     );
   }
@@ -186,8 +182,9 @@ class _CatalogoScreenState extends State<CatalogoScreen>
   Widget _buildMaterialesTab(List<MaterialEntity> materiales) {
     List<MaterialEntity> filteredMateriales = materiales
         .where(
-          (material) =>
-              material.nombre.toLowerCase().contains(_searchQuery.toLowerCase()),
+          (material) => material.nombre.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ),
         )
         .toList();
 
@@ -457,81 +454,92 @@ class _CatalogoScreenState extends State<CatalogoScreen>
     );
   }
 
-  void _showAddItemDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
+  Widget _buildCreateButtons(BuildContext context) {
+    return BlocBuilder<CatalogoBloc, CatalogoState>(
+      builder: (context, state) {
+        final catalogoBloc = context.read<CatalogoBloc>();
+        final router = GoRouter.of(context);
+        return FloatingActionButton(
+          onPressed: () => showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
+            builder: (context) => Container(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
 
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.doradoMaiz.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text('🫓', style: TextStyle(fontSize: 20)),
-              ),
-              title: const Text('Agregar Pupusa'),
-              subtitle: const Text('Nuevo tipo de pupusa'),
-              onTap: () {
-                context.pop();
-                context.go(AppRoutes.agregarMaterial);
-              },
-            ),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.doradoMaiz.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('🫓', style: TextStyle(fontSize: 20)),
+                    ),
+                    title: const Text('Agregar Pupusa'),
+                    subtitle: const Text('Nuevo tipo de pupusa'),
+                    onTap: () {
+                      context.pop();
+                      context.push(AppRoutes.agregarMaterial);
+                    },
+                  ),
 
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.azulSalvador.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text('🥤', style: TextStyle(fontSize: 20)),
-              ),
-              title: const Text('Agregar Bebida'),
-              subtitle: const Text('Nueva bebida al menú'),
-              onTap: () {
-                context.pop();
-                context.go(AppRoutes.agregarMaterial);
-              },
-            ),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.azulSalvador.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('🥤', style: TextStyle(fontSize: 20)),
+                    ),
+                    title: const Text('Agregar Bebida'),
+                    subtitle: const Text('Nueva bebida al menú'),
+                    onTap: () {
+                      context.pop();
+                      context.push(AppRoutes.agregarMaterial);
+                    },
+                  ),
 
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.rojoTomate.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text('🍚', style: TextStyle(fontSize: 20)),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.rojoTomate.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text('🍚', style: TextStyle(fontSize: 20)),
+                    ),
+                    title: const Text('Agregar Material'),
+                    subtitle: const Text('Nuevo material al catálogo'),
+                    onTap: () async {
+                      context.pop();
+                      final result = await router.push<bool>(AppRoutes.agregarMaterial);
+                      if (result == true) catalogoBloc.add(CargarProductos());
+                    },
+                  ),
+                ],
               ),
-              title: const Text('Agregar Material'),
-              subtitle: const Text('Nuevo material al catálogo'),
-              onTap: () {
-                context.pop();
-                context.go(AppRoutes.agregarMaterial);
-              },
             ),
-          ],
-        ),
-      ),
+          ),
+          backgroundColor: AppTheme.azulSalvador,
+          child: const Icon(Icons.add, color: Colors.white),
+        );
+      },
     );
   }
 

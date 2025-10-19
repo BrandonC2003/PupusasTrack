@@ -6,12 +6,10 @@ class NombreChanged extends AgregarMaterialEvent {
   NombreChanged(this.name);
 }
 
-class GuardarMaterial extends AgregarMaterialEvent {
-  final String nombre;
+class DescripcionChanged extends AgregarMaterialEvent {
   final String descripcion;
 
-  GuardarMaterial({
-    required this.nombre,
-    required this.descripcion,
-  });
+  DescripcionChanged(this.descripcion);
 }
+
+class AgregarMaterial extends AgregarMaterialEvent {}

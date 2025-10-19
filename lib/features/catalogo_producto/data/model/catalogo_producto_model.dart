@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/entities/catalogo_producto_entity.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/enumerables/tipo_producto.dart';
+import 'package:pupusas_track/core/utils/enum_utils.dart';
 
 class CatalogoProductoModel {
   final String id;
@@ -40,10 +41,7 @@ class CatalogoProductoModel {
     final map = doc.data() as Map<String, dynamic>;
     // tipoProducto is stored as a String in Firestore; convert to enum
     final tipoStr = map['tipoProducto'] as String? ?? '';
-    final tipoProducto = TipoProducto.values.firstWhere(
-      (e) => e.toString().split('.').last == tipoStr,
-      orElse: () => TipoProducto.pupusa,
-    );
+    final tipoProducto = enumFromName<TipoProducto>(TipoProducto.values, tipoStr, TipoProducto.pupusa);
 
     return CatalogoProductoModel(
       id: doc.id,
@@ -73,7 +71,7 @@ class CatalogoProductoModel {
     return {
       'nombre': nombre,
       'descripcion': descripcion,
-      'tipoProducto': tipoProducto.toString().split('.').last,
+      'tipoProducto': enumToName(tipoProducto),
       'precio': precio,
       'size': size,
       'descuentos': descuentos?.map((descuento) => descuento.toMap()),

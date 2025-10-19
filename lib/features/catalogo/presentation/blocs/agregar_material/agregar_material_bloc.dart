@@ -9,7 +9,8 @@ class AgregarMaterialBloc extends Bloc<AgregarMaterialEvent, AgregarMaterialStat
 
   AgregarMaterialBloc({required this.agregarMaterialUseCase}) : super(const AgregarMaterialState()) {
     on<NombreChanged>(_onNombreChanged);
-    on<GuardarMaterial>(_onGuardarMaterial);
+    on<DescripcionChanged>(_onDescripcionChanged);
+    on<AgregarMaterial>(_onAgregarMaterial);
   }
 
   void _onNombreChanged(NombreChanged event, Emitter<AgregarMaterialState> emit) {
@@ -33,7 +34,11 @@ class AgregarMaterialBloc extends Bloc<AgregarMaterialEvent, AgregarMaterialStat
     ));
   }
 
-  void _onGuardarMaterial(GuardarMaterial event, Emitter<AgregarMaterialState> emit) async {
+  void _onDescripcionChanged(DescripcionChanged event, Emitter<AgregarMaterialState> emit) {
+    emit(state.copyWith(descripcion: event.descripcion));
+  }
+
+  void _onAgregarMaterial(AgregarMaterial event, Emitter<AgregarMaterialState> emit) async {
     emit(state.copyWith(status: AgregarMaterialStatus.loading));
     try {
       if (state.nombreStatus != NombreStatus.valid) {
@@ -42,7 +47,7 @@ class AgregarMaterialBloc extends Bloc<AgregarMaterialEvent, AgregarMaterialStat
         return;
       }
 
-      var materialEntity = MaterialEntity(nombre: event.nombre, descripcion: event.descripcion);
+      var materialEntity = MaterialEntity(nombre: state.nombre, descripcion: state.descripcion);
       await agregarMaterialUseCase(materialEntity);
 
       emit(state.copyWith(status: AgregarMaterialStatus.success));
