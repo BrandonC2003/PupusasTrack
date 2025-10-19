@@ -12,23 +12,17 @@ class SignInUseCase {
   SignInUseCase(this.authRepository, this.userRepository, this.sessionService);
 
   Future<AuthUser> call(SignInParams params) async {
-    try {
-      var authUser = await authRepository.signIn(
-        email: params.email,
-        password: params.password,
-      );
+    var authUser = await authRepository.signIn(
+      email: params.email,
+      password: params.password,
+    );
 
-      //Recupero la informacion del usuario para saber a cual pupuseria pertenece
-      //y guardo el id de pupuseria en sesion
-      var userEnty = await userRepository.getUser(authUser.id);
-      sessionService.setIdPupuseria(userEnty!.idPupuseria);
+    //Recupero la informacion del usuario para saber a cual pupuseria pertenece
+    //y guardo el id de pupuseria en sesion
+    var userEnty = await userRepository.getUser(authUser.id);
+    sessionService.setIdPupuseria(userEnty!.idPupuseria);
 
-      return authUser;
-    } on ArgumentError catch (error) {
-      throw Exception(error);
-    } catch (error) {
-      throw Exception(error);
-    }
+    return authUser;
   }
 }
 
@@ -36,8 +30,5 @@ class SignInParams {
   final String email;
   final String password;
 
-  SignInParams({
-    required this.email,
-    required this.password,
-  });
+  SignInParams({required this.email, required this.password});
 }

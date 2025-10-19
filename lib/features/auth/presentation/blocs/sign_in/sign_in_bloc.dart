@@ -1,5 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pupusas_track/core/utils/firebase_auth_error_handler.dart';
 import '../../../domain/use_cases/sign_in_use_case.dart';
 import '../email_status.dart';
 import '../form_status.dart';
@@ -16,7 +16,9 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       if (event.password.isEmpty) {
         emit(
           state.copyWith(
-            passwordStatus: InvalidPasswordStatus(message: "Ingrese la contraseña"),
+            passwordStatus: InvalidPasswordStatus(
+              message: "Ingrese la contraseña",
+            ),
           ),
         );
         return;
@@ -37,18 +39,15 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       if (!emailRegExp.hasMatch(event.email)) {
         emit(
           state.copyWith(
-            emailStatus: InvalidEmailStatus(message: "Dirección de correo inválida"),
+            emailStatus: InvalidEmailStatus(
+              message: "Dirección de correo inválida",
+            ),
           ),
         );
         return;
       }
 
-      emit(
-        state.copyWith(
-          email: event.email,
-          emailStatus: ValidEmailStatus(),
-        ),
-      );
+      emit(state.copyWith(email: event.email, emailStatus: ValidEmailStatus()));
     });
 
     on<ToggleObscurePassword>((event, emit) {
@@ -58,7 +57,13 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     on<SignInSubmitted>((event, emit) async {
       if (state.emailStatus is! ValidEmailStatus ||
           state.passwordStatus is! ValidPasswordStatus) {
-        emit(state.copyWith(formStatus: InvalidFormStatus(message: "Completa los campos correctamente")));
+        emit(
+          state.copyWith(
+            formStatus: InvalidFormStatus(
+              message: "Completa los campos correctamente",
+            ),
+          ),
+        );
         emit(state.copyWith(formStatus: InitialFormStatus()));
         return;
       }
@@ -68,11 +73,38 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         await _signInUseCase(
           SignInParams(email: state.email!, password: state.password!),
         );
-        emit(state.copyWith(formStatus: SubmissionSuccess(message: "Inicio de sesión exitoso")));
-      }
-      catch (err) {
-        String friendlyMessage = FirebaseAuthErrorHandler.getGenericErrorMessage(err);
-        emit(state.copyWith(formStatus: SubmissionFailure(message: friendlyMessage)));
+        emit(
+          state.copyWith(
+            formStatus: SubmissionSuccess(message: "Inicio de sesión exitoso"),
+          ),
+        );
+      } on FirebaseAuthException catch (err) {
+        String errorMessage = "";
+        switch (err.code) {
+          case 'user-disabled':
+            errorMessage ='El usuario ha sido deshabilitado';
+            break;
+          case 'invalid-credential':
+            errorMessage = 'Credenciales de acceso incorrectas';
+            break;
+          case 'network-request-failed':
+            errorMessage = 'No hay conexión a internet o la conexión falló';
+            break;
+          default:
+            errorMessage = 'Ocurrió un error desconocido, vuelve a intentarlo';
+        }
+
+        emit(
+          state.copyWith(formStatus: SubmissionFailure(message: errorMessage)),
+        );
+      } catch (err) {
+        emit(
+          state.copyWith(
+            formStatus: SubmissionFailure(
+              message: "Ocurrió un error inesperado, vuelve a intentarlo",
+            ),
+          ),
+        );
       }
       emit(state.copyWith(formStatus: InitialFormStatus()));
     });

@@ -4,9 +4,8 @@ import '../models/auth_user_model.dart';
 import 'auth_remote_data_source.dart';
 
 class AuthRemoteDataSourceFirebase implements AuthRemoteDataSource {
-  AuthRemoteDataSourceFirebase({
-    firebase_auth.FirebaseAuth? firebaseAuth,
-  }) : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance;
+  AuthRemoteDataSourceFirebase({firebase_auth.FirebaseAuth? firebaseAuth})
+    : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance;
 
   final firebase_auth.FirebaseAuth _firebaseAuth;
 
@@ -25,21 +24,14 @@ class AuthRemoteDataSourceFirebase implements AuthRemoteDataSource {
     required String email,
     required String password,
   }) async {
-    try {
-      firebase_auth.UserCredential credential =
-          await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    firebase_auth.UserCredential credential = await _firebaseAuth
+        .createUserWithEmailAndPassword(email: email, password: password);
 
-      if (credential.user == null) {
-        throw Exception('Sign up failed: The user is null after sign up.');
-      }
-
-      return AuthUserModel.fromFirebaseAuthUser(credential.user!);
-    } catch (error) {
-      throw Exception('Sign up failed: $error');
+    if (credential.user == null) {
+      throw Exception('Sign up failed: The user is null after sign up.');
     }
+
+    return AuthUserModel.fromFirebaseAuthUser(credential.user!);
   }
 
   @override
@@ -47,21 +39,14 @@ class AuthRemoteDataSourceFirebase implements AuthRemoteDataSource {
     required String email,
     required String password,
   }) async {
-    try {
-      firebase_auth.UserCredential credential =
-          await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    firebase_auth.UserCredential credential = await _firebaseAuth
+        .signInWithEmailAndPassword(email: email, password: password);
 
-      if (credential.user == null) {
-        throw Exception('Sign in failed: The user is null after sign in.');
-      }
-
-      return AuthUserModel.fromFirebaseAuthUser(credential.user!);
-    } catch (error) {
-      throw Exception('Sign in failed: $error');
+    if (credential.user == null) {
+      throw Exception('Sign in failed: The user is null after sign in.');
     }
+
+    return AuthUserModel.fromFirebaseAuthUser(credential.user!);
   }
 
   @override

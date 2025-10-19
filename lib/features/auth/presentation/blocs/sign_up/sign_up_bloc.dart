@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pupusas_track/core/domain/services/session_service.dart';
 import 'package:pupusas_track/core/errors/validation_error.dart';
@@ -179,10 +180,32 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         emit(
           state.copyWith(formStatus: SubmissionFailure(message: error.message)),
         );
-      } catch (err) {
+      } on FirebaseAuthException catch (err) {
+        String errorMessage = "";
+        switch (err.code) {
+          case 'weak-password':
+            errorMessage = 'La contraseña es demasiado débil';
+            break;
+          case 'invalid-email':
+            errorMessage = 'El formato del correo electrónico no es válido';
+            break;
+          case 'email-already-in-use':
+            errorMessage = 'El correo electrónico ya está en uso';
+            break;
+          case 'network-request-failed':
+            errorMessage = 'No hay conexión a internet o la conexión falló';
+            break;
+          default:
+            errorMessage = 'Ocurrió un error desconocido, vuelve a intentarlo';
+        }
+
+        emit(
+          state.copyWith(formStatus: SubmissionFailure(message: errorMessage)),
+        );
+      }catch (err) {
         emit(
           state.copyWith(
-            formStatus: SubmissionFailure(message: err.toString()),
+            formStatus: SubmissionFailure(message: "Ocurrió un error inesperado, vuelve a intentarlo"),
           ),
         );
       }
