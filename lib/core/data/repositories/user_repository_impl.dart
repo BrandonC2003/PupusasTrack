@@ -10,10 +10,11 @@ class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl({required this.firestore});
 
   @override
-  Future<void> createUser(UserEntity user) async {
+  Future<void> createUser(String id, UserEntity user) async {
     await firestore
         .collection(_nombrecoleccion)
-        .add(UserModel.fromEntity(user).toMap());
+        .doc(id)
+        .set(UserModel.fromEntity(user).toMap());
   }
 
   @override

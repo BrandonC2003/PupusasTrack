@@ -25,7 +25,7 @@ class SignUpUseCase {
       idPupuseria: params.idPupuseria,
     );
 
-    await userRepository.createUser(userEntity);
+    await userRepository.createUser(authUser.id, userEntity);
 
     authUser = authUser.copyWith(idPupuseria: userEntity.idPupuseria);
 
