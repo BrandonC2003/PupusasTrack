@@ -21,7 +21,6 @@ class CatalogoScreen extends StatefulWidget {
 class _CatalogoScreenState extends State<CatalogoScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  String _searchQuery = '';
 
   @override
   void initState() {
@@ -49,9 +48,6 @@ class _CatalogoScreenState extends State<CatalogoScreen>
             } else if (state is CatalogoLoaded) {
               return Column(
                 children: [
-                  // Barra de búsqueda
-                  _buildSearchBar(),
-
                   // Tabs
                   _buildTabBar(),
 
@@ -92,35 +88,33 @@ class _CatalogoScreenState extends State<CatalogoScreen>
         style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
       ),
       centerTitle: true,
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Buscar...',
-          hintStyle: TextStyle(color: Colors.grey.shade500),
-          prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
-          filled: true,
-          fillColor: Colors.grey.shade100,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
+      actions: [
+        BlocBuilder<CatalogoBloc, CatalogoState>(
+          builder: (context, state) {
+            if (state is CatalogoLoaded) {
+              return IconButton(
+                icon: Icon(Icons.search, color: Colors.grey.shade700),
+                onPressed: () {
+                  final state = context.read<CatalogoBloc>().state;
+                  if (state is CatalogoLoaded) {
+                    showSearch(
+                      context: context,
+                      delegate: CatalogoSearchDelegate(
+                        pupusas: state.pupusas,
+                        bebidas: state.bebidas,
+                        materiales: state.materiales,
+                        onToggleStatus: _toggleItemStatus,
+                        onEditItem: _editItem,
+                      ),
+                    );
+                  }
+                },
+              );
+            }
+            return Container();
+          },
         ),
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value;
-          });
-        },
-      ),
+      ],
     );
   }
 
@@ -146,53 +140,31 @@ class _CatalogoScreenState extends State<CatalogoScreen>
   }
 
   Widget _buildPupusasTab(List<CatalogoProductoEntity> pupusas) {
-    List<CatalogoProductoEntity> filteredPupusas = pupusas
-        .where(
-          (pupusa) =>
-              pupusa.nombre.toLowerCase().contains(_searchQuery.toLowerCase()),
-        )
-        .toList();
-
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: filteredPupusas.length,
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
+      itemCount: pupusas.length,
       itemBuilder: (context, index) {
-        return _buildPupusaCard(filteredPupusas[index]);
+        return _buildPupusaCard(pupusas[index]);
       },
     );
   }
 
   Widget _buildBebidasTab(List<CatalogoProductoEntity> bebidas) {
-    List<CatalogoProductoEntity> filteredBebidas = bebidas
-        .where(
-          (bebida) =>
-              bebida.nombre.toLowerCase().contains(_searchQuery.toLowerCase()),
-        )
-        .toList();
-
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: filteredBebidas.length,
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
+      itemCount: bebidas.length,
       itemBuilder: (context, index) {
-        return _buildBebidaCard(filteredBebidas[index]);
+        return _buildBebidaCard(bebidas[index]);
       },
     );
   }
 
   Widget _buildMaterialesTab(List<MaterialEntity> materiales) {
-    List<MaterialEntity> filteredMateriales = materiales
-        .where(
-          (material) => material.nombre.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          ),
-        )
-        .toList();
-
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: filteredMateriales.length,
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
+      itemCount: materiales.length,
       itemBuilder: (context, index) {
-        return _buildMaterialCard(filteredMateriales[index]);
+        return _buildMaterialCard(materiales[index]);
       },
     );
   }
@@ -203,79 +175,59 @@ class _CatalogoScreenState extends State<CatalogoScreen>
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            // Emoji de pupusa
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppTheme.doradoMaiz.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text('🫓', style: TextStyle(fontSize: 28)),
-              ),
-            ),
-
-            const SizedBox(width: 16),
-
-            // Información de la pupusa
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // nombre: permitir que el texto ajuste y se trunque si es necesario
-                  AutoSizeText(
-                    pupusa.nombre,
-                    maxLines: 2,
-                    minFontSize: 10,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: true,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '\$${pupusa.precio.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.verdeComal,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Botones de acción
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.edit,
-                    color: AppTheme.azulSalvador,
-                    size: 20,
-                  ),
-                  onPressed: () => _editItem(pupusa),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _editItem(pupusa),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppTheme.doradoMaiz.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete,
-                    color: AppTheme.rojoTomate,
-                    size: 20,
-                  ),
-                  onPressed: () => _deleteItem(pupusa.id, pupusa.nombre),
+                child: const Center(
+                  child: Text('🫓', style: TextStyle(fontSize: 28)),
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      pupusa.nombre,
+                      maxLines: 2,
+                      minFontSize: 10,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '\$${pupusa.precio.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.verdeComal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: pupusa.disponible,
+                onChanged: (value) => _toggleItemStatus(pupusa.id, value),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -287,168 +239,134 @@ class _CatalogoScreenState extends State<CatalogoScreen>
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            // Emoji de bebida
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppTheme.azulSalvador.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text('🥤', style: TextStyle(fontSize: 28)),
-              ),
-            ),
-
-            const SizedBox(width: 16),
-
-            // Información de la bebida
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    bebida.nombre,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    bebida.size ?? '',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '\$${bebida.precio.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.verdeComal,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Botones de acción
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.edit,
-                    color: AppTheme.azulSalvador,
-                    size: 20,
-                  ),
-                  onPressed: () => _editItem(bebida),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _editItem(bebida),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppTheme.azulSalvador.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete,
-                    color: AppTheme.rojoTomate,
-                    size: 20,
-                  ),
-                  onPressed: () => _deleteItem(bebida.id, bebida.nombre),
+                child: const Center(
+                  child: Text('🥤', style: TextStyle(fontSize: 28)),
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      bebida.nombre,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      bebida.size ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '\$${bebida.precio.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.verdeComal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: bebida.disponible,
+                onChanged: (value) => _toggleItemStatus(bebida.id, value),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildMaterialCard(MaterialEntity pupusa) {
+  Widget _buildMaterialCard(MaterialEntity material) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            // Emoji de pupusa
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppTheme.rojoTomate.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Text('🍚', style: TextStyle(fontSize: 28)),
-              ),
-            ),
-
-            const SizedBox(width: 16),
-
-            // Información del material
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // nombre: usar AutoSizeText para ajustar en espacios pequeños
-                  AutoSizeText(
-                    pupusa.nombre,
-                    maxLines: 2,
-                    minFontSize: 10,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: true,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    pupusa.descripcion,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: true,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.verdeComal,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Botones de acción
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.edit,
-                    color: AppTheme.azulSalvador,
-                    size: 20,
-                  ),
-                  onPressed: () => _editItem(pupusa),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _editItem(material),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppTheme.rojoTomate.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete,
-                    color: AppTheme.rojoTomate,
-                    size: 20,
-                  ),
-                  onPressed: () => _deleteItem(pupusa.id!, pupusa.nombre),
+                child: const Center(
+                  child: Text('🍚', style: TextStyle(fontSize: 28)),
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      material.nombre,
+                      maxLines: 2,
+                      minFontSize: 10,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      material.descripcion,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.verdeComal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: AppTheme.rojoTomate, size: 20),
+                onPressed: () {
+                  /* Implementar eliminación de material */
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -480,7 +398,6 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
@@ -494,11 +411,12 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                     subtitle: const Text('Nuevo tipo de pupusa'),
                     onTap: () async {
                       context.pop();
-                      final result = await router.push<bool>(AppRoutes.agregarProducto);
+                      final result = await router.push<bool>(
+                        AppRoutes.agregarProducto,
+                      );
                       if (result == true) catalogoBloc.add(CargarProductos());
                     },
                   ),
-
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
@@ -512,11 +430,12 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                     subtitle: const Text('Nueva bebida al menú'),
                     onTap: () async {
                       context.pop();
-                      final result = await router.push<bool>(AppRoutes.agregarBebida);
+                      final result = await router.push<bool>(
+                        AppRoutes.agregarBebida,
+                      );
                       if (result == true) catalogoBloc.add(CargarProductos());
                     },
                   ),
-
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
@@ -530,7 +449,9 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                     subtitle: const Text('Nuevo material al catálogo'),
                     onTap: () async {
                       context.pop();
-                      final result = await router.push<bool>(AppRoutes.agregarMaterial);
+                      final result = await router.push<bool>(
+                        AppRoutes.agregarMaterial,
+                      );
                       if (result == true) catalogoBloc.add(CargarProductos());
                     },
                   ),
@@ -546,37 +467,389 @@ class _CatalogoScreenState extends State<CatalogoScreen>
   }
 
   void _editItem(dynamic item) {
-    // Implementar edición
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Editando ${item.name}')));
+    if (item is CatalogoProductoEntity) {
+      context.push('${AppRoutes.agregarBebida}/${item.id}');
+    } else if (item is MaterialEntity) {
+      context.push('${AppRoutes.agregarMaterial}/${item.id}');
+    }
   }
 
-  void _deleteItem(String id, String name) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar elemento'),
-        content: Text('¿Estás seguro de que quieres eliminar "$name"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Implementar eliminación
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('$name eliminado')));
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.rojoTomate,
+  void _toggleItemStatus(String id, bool newStatus) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          newStatus ? 'Elemento habilitado' : 'Elemento deshabilitado',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+// SearchDelegate personalizado
+class CatalogoSearchDelegate extends SearchDelegate<String> {
+  final List<CatalogoProductoEntity> pupusas;
+  final List<CatalogoProductoEntity> bebidas;
+  final List<MaterialEntity> materiales;
+  final Function(String, bool) onToggleStatus;
+  final Function(dynamic) onEditItem;
+
+  CatalogoSearchDelegate({
+    required this.pupusas,
+    required this.bebidas,
+    required this.materiales,
+    required this.onToggleStatus,
+    required this.onEditItem,
+  });
+
+  @override
+  String get searchFieldLabel => 'Buscar en catálogo...';
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return Theme.of(context).copyWith(
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        iconTheme: IconThemeData(color: Colors.grey.shade700),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: InputBorder.none,
+        hintStyle: TextStyle(color: Colors.grey.shade500),
+      ),
+    );
+  }
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      if (query.isNotEmpty)
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () {
+            query = '';
+          },
+        ),
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, '');
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return _buildSearchResults(context);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return _buildSearchResults(context);
+  }
+
+  Widget _buildSearchResults(BuildContext context) {
+    if (query.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              'Busca pupusas, bebidas o materiales',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
             ),
-            child: const Text('Eliminar'),
-          ),
+          ],
+        ),
+      );
+    }
+
+    final searchLower = query.toLowerCase();
+
+    final filteredPupusas = pupusas
+        .where((p) => p.nombre.toLowerCase().contains(searchLower))
+        .toList();
+
+    final filteredBebidas = bebidas
+        .where((b) => b.nombre.toLowerCase().contains(searchLower))
+        .toList();
+
+    final filteredMateriales = materiales
+        .where((m) => m.nombre.toLowerCase().contains(searchLower))
+        .toList();
+
+    final totalResults =
+        filteredPupusas.length +
+        filteredBebidas.length +
+        filteredMateriales.length;
+
+    if (totalResults == 0) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              'No se encontraron resultados',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Intenta con otro término de búsqueda',
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        if (filteredPupusas.isNotEmpty) ...[
+          _buildSectionHeader('Pupusas', filteredPupusas.length),
+          ...filteredPupusas.map((p) => _buildPupusaCard(p, context)),
+          const SizedBox(height: 16),
         ],
+        if (filteredBebidas.isNotEmpty) ...[
+          _buildSectionHeader('Bebidas', filteredBebidas.length),
+          ...filteredBebidas.map((b) => _buildBebidaCard(b, context)),
+          const SizedBox(height: 16),
+        ],
+        if (filteredMateriales.isNotEmpty) ...[
+          _buildSectionHeader('Materiales', filteredMateriales.length),
+          ...filteredMateriales.map((m) => _buildMaterialCard(m, context)),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title, int count) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, top: 8),
+      child: Text(
+        '$title ($count)',
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey.shade700,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPupusaCard(CatalogoProductoEntity pupusa, BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          close(context, '');
+          onEditItem(pupusa);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppTheme.doradoMaiz.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text('🫓', style: TextStyle(fontSize: 28)),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      pupusa.nombre,
+                      maxLines: 2,
+                      minFontSize: 10,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '\$${pupusa.precio.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.verdeComal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: pupusa.disponible,
+                onChanged: (value) {
+                  onToggleStatus(pupusa.id, value);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBebidaCard(CatalogoProductoEntity bebida, BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          close(context, '');
+          onEditItem(bebida);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppTheme.azulSalvador.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text('🥤', style: TextStyle(fontSize: 28)),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      bebida.nombre,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      bebida.size ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '\$${bebida.precio.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.verdeComal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: bebida.disponible,
+                onChanged: (value) {
+                  onToggleStatus(bebida.id, value);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMaterialCard(MaterialEntity material, BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          close(context, '');
+          onEditItem(material);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppTheme.rojoTomate.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text('🍚', style: TextStyle(fontSize: 28)),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      material.nombre,
+                      maxLines: 2,
+                      minFontSize: 10,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      material.descripcion,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
