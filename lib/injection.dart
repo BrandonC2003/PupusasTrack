@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pupusas_track/core/data/services/session_service_impl.dart';
 import 'package:pupusas_track/core/domain/services/session_service.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/agregar_bebida/agregar_bebida_bloc.dart';
 import 'package:pupusas_track/features/catalogo/presentation/blocs/agregar_material/agregar_material_bloc.dart';
 import 'package:pupusas_track/features/catalogo/presentation/blocs/agregar_producto/agregar_producto_bloc.dart';
 import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_bloc.dart';
@@ -161,5 +162,9 @@ Future<void> initDependencies() async {
 
   sl.registerFactory(
     () => AgregarProductoBloc(agregarProductoUseCase: sl())
+  );
+
+  sl.registerFactory(
+    () => AgregarBebidaBloc(agregarProductoUseCase: sl())
   );
 }

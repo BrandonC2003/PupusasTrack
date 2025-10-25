@@ -4,6 +4,7 @@ import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc.da
 import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc_notifier.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_state.dart';
 import 'package:pupusas_track/features/auth/presentation/screens/sign_out_screen.dart';
+import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_bebida_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_material_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_producto_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/catalogo_screen.dart';
@@ -77,6 +78,10 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.agregarProducto,
               builder: (context, state) => const AgregarProductoScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.agregarBebida,
+              builder: (context, state) => const AgregarBebidaScreen(),
             ),
             GoRoute(
               path: AppRoutes.agregarMaterial,

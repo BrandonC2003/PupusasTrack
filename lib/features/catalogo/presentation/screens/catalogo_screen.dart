@@ -512,7 +512,7 @@ class _CatalogoScreenState extends State<CatalogoScreen>
                     subtitle: const Text('Nueva bebida al menú'),
                     onTap: () async {
                       context.pop();
-                      final result = await router.push<bool>(AppRoutes.agregarMaterial);
+                      final result = await router.push<bool>(AppRoutes.agregarBebida);
                       if (result == true) catalogoBloc.add(CargarProductos());
                     },
                   ),
