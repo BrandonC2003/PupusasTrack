@@ -4,6 +4,7 @@ import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc.da
 import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc_notifier.dart';
 import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_state.dart';
 import 'package:pupusas_track/features/auth/presentation/screens/sign_out_screen.dart';
+import 'package:pupusas_track/features/catalogo/presentation/screens/actualizar_material_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_bebida_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_material_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_producto_screen.dart';
@@ -11,6 +12,7 @@ import 'package:pupusas_track/features/catalogo/presentation/screens/catalogo_sc
 import 'package:pupusas_track/features/informes/presentation/screens/informes_screen.dart';
 import 'package:pupusas_track/features/main_layout/presentation/screens/home_screen.dart';
 import 'package:pupusas_track/features/main_layout/presentation/screens/main_layout_screen.dart';
+import 'package:pupusas_track/features/material/domain/entities/material_entity.dart';
 import 'package:pupusas_track/features/pedidos/presentation/screens/pedidos_screen.dart';
 import 'package:pupusas_track/features/profile/presentation/screens/profile_screen.dart';
 import 'package:pupusas_track/features/registro_diario/presentation/screens/registro_diario_screen.dart';
@@ -71,10 +73,13 @@ class AppRouter {
               path: AppRoutes.home,
               builder: (context, state) => const HomeScreen(),
             ),
+
+            // Rutas de catalogo de producto
             GoRoute(
               path: AppRoutes.catalogo,
               builder: (context, state) => const CatalogoScreen(),
             ),
+
             GoRoute(
               path: AppRoutes.agregarProducto,
               builder: (context, state) => const AgregarProductoScreen(),
@@ -87,14 +92,28 @@ class AppRouter {
               path: AppRoutes.agregarMaterial,
               builder: (context, state) => const AgregarMaterialScreen(),
             ),
+
+            GoRoute(
+              path: AppRoutes.actualizarMaterial,
+              builder: (context, state) {
+                final material = state.extra as MaterialEntity;
+                return ActualizarMaterialScreen(material: material);
+              },
+            ),
+
+            // Rutas de pedidos
             GoRoute(
               path: AppRoutes.pedidos,
               builder: (context, state) => const PedidosScreen(),
             ),
+
+            // Rutas de informes
             GoRoute(
               path: AppRoutes.informes,
               builder: (context, state) => const InformesScreen(),
             ),
+
+            // Rutas de registro diario
             GoRoute(
               path: AppRoutes.registroDiario,
               builder: (context, state) => const RegistroDiarioScreen(),

@@ -6,9 +6,11 @@ class AppRoutes{
   static const String pedidos = '/pedidos';
 
   static const String catalogo = '/catalogo';
+
   static const String agregarMaterial = '/agregar-material';
   static const String agregarProducto = '/agregar-producto';
   static const String agregarBebida = '/agregar-bebida';
+  
   static const String actualizarMaterial = '/actualizar-material';
   static const String actualizarProducto = '/actualizar-producto';
   static const String actualizarBebida = '/actualizar-bebida';

@@ -170,66 +170,72 @@ class _CatalogoScreenState extends State<CatalogoScreen>
   }
 
   Widget _buildPupusaCard(CatalogoProductoEntity pupusa) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _editItem(pupusa),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppTheme.doradoMaiz.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: Text('🫓', style: TextStyle(fontSize: 28)),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AutoSizeText(
-                      pupusa.nombre,
-                      maxLines: 2,
-                      minFontSize: 10,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '\$${pupusa.precio.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.verdeComal,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Switch(
-                value: pupusa.disponible,
-                onChanged: (value) => _toggleItemStatus(pupusa.id, value),
-              ),
-            ],
+    return BlocBuilder<CatalogoBloc, CatalogoState>(
+      builder: (context, state) {
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          elevation: 2,
+          shadowColor: Colors.black.withValues(alpha: 0.1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-        ),
-      ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => _editItem(pupusa),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppTheme.doradoMaiz.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                      child: Text('🫓', style: TextStyle(fontSize: 28)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          pupusa.nombre,
+                          maxLines: 2,
+                          minFontSize: 10,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '\$${pupusa.precio.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.verdeComal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Switch(
+                    value: pupusa.disponible,
+                    onChanged: (value) => _toggleItemStatus(pupusa.id, value),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -304,71 +310,90 @@ class _CatalogoScreenState extends State<CatalogoScreen>
   }
 
   Widget _buildMaterialCard(MaterialEntity material) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _editItem(material),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppTheme.rojoTomate.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Center(
-                  child: Text('🍚', style: TextStyle(fontSize: 28)),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AutoSizeText(
-                      material.nombre,
-                      maxLines: 2,
-                      minFontSize: 10,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      material.descripcion,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.verdeComal,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.delete, color: AppTheme.rojoTomate, size: 20),
-                onPressed: () {
-                  /* Implementar eliminación de material */
-                },
-              ),
-            ],
+    return BlocBuilder<CatalogoBloc, CatalogoState>(
+      builder: (context, state) {
+        final catalogoBloc = context.read<CatalogoBloc>();
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          elevation: 2,
+          shadowColor: Colors.black.withValues(alpha: 0.1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-        ),
-      ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () async {
+              final result = await context.push<bool>(
+                AppRoutes.actualizarMaterial,
+                extra: material,
+              );
+              if (result == true) {
+                catalogoBloc.add(CargarProductos());
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppTheme.rojoTomate.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                      child: Text('🍚', style: TextStyle(fontSize: 28)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          material.nombre,
+                          maxLines: 2,
+                          minFontSize: 10,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          material.descripcion,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.verdeComal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                      color: AppTheme.rojoTomate,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      /* Implementar eliminación de material */
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -470,7 +495,7 @@ class _CatalogoScreenState extends State<CatalogoScreen>
     if (item is CatalogoProductoEntity) {
       context.push('${AppRoutes.agregarBebida}/${item.id}');
     } else if (item is MaterialEntity) {
-      context.push('${AppRoutes.agregarMaterial}/${item.id}');
+      context.push<bool>(AppRoutes.actualizarMaterial, extra: item);
     }
   }
 
@@ -486,7 +511,7 @@ class _CatalogoScreenState extends State<CatalogoScreen>
   }
 }
 
-// SearchDelegate personalizado
+// Search Delegate para el catálogo
 class CatalogoSearchDelegate extends SearchDelegate<String> {
   final List<CatalogoProductoEntity> pupusas;
   final List<CatalogoProductoEntity> bebidas;
