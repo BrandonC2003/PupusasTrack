@@ -93,8 +93,8 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                               labelText: 'Precio',
                               prefixText: '\$ ',
                               errorText:
-                                  state.nombreStatus == NombreStatus.invalid
-                                  ? state.nombreMessage
+                                  state.precioStatus == PrecioStatus.invalid
+                                  ? state.precioMessage
                                   : null,
                               prefixIcon: const Icon(Icons.money_outlined),
                             ),
@@ -111,7 +111,10 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                           // Disponibilidad: caja con borde para que se vea claramente
                           Container(
                             margin: const EdgeInsets.symmetric(vertical: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
@@ -128,14 +131,17 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Disponibilidad',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyLarge
-                                            ?.copyWith(fontWeight: FontWeight.w600),
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
@@ -155,13 +161,22 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                                       value: state.disponible,
                                       onChanged: (value) => context
                                           .read<AgregarProductoBloc>()
-                                          .add(ChangedDisponibleEvent(disponible: value)),
+                                          .add(
+                                            ChangedDisponibleEvent(
+                                              disponible: value,
+                                            ),
+                                          ),
                                     ),
                                     const SizedBox(height: 4),
                                     Chip(
                                       label: Text(
-                                        state.disponible ? 'Disponible' : 'No disponible',
-                                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                                        state.disponible
+                                            ? 'Disponible'
+                                            : 'No disponible',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                        ),
                                       ),
                                       backgroundColor: state.disponible
                                           ? AppTheme.verdeComal
@@ -181,14 +196,20 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                             children: [
                               Text(
                                 'Descuentos',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
                               ),
                               ElevatedButton.icon(
-                                onPressed: () => context.read<AgregarProductoBloc>().add(AddedDescuentoEvent()),
+                                onPressed: () => context
+                                    .read<AgregarProductoBloc>()
+                                    .add(AddedDescuentoEvent()),
                                 icon: const Icon(Icons.add, size: 18),
                                 label: const Text('Agregar'),
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
                                   minimumSize: const Size(0, 36),
                                 ),
                               ),
@@ -203,11 +224,15 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                             itemBuilder: (context, i) {
                               final d = state.descuentos[i];
                               return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 6.0,
+                                ),
                                 child: Card(
                                   margin: EdgeInsets.zero,
                                   elevation: 0.8,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
@@ -215,56 +240,71 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                                       children: [
                                         Expanded(
                                           child: TextFormField(
-                                      initialValue: d.cantidad == 0
-                                          ? ''
-                                          : d.cantidad.toString(),
-                                      decoration: InputDecoration(
-                                        labelText: 'Cantidad',
-                                        errorText: d.valid
-                                            ? null
-                                            : d.errorMessage,
-                                      ),
-                                      keyboardType: TextInputType.number,
-                                      onChanged: (v) => context
-                                          .read<AgregarProductoBloc>()
-                                          .add(
-                                            ChangedDescuentoCantidadEvent(
-                                              descuentoId: d.id,
-                                              cantidad: v,
+                                            initialValue: d.cantidad == 0
+                                                ? ''
+                                                : d.cantidad.toString(),
+                                            decoration: InputDecoration(
+                                              labelText: 'Cantidad',
+                                              errorText: d.valid
+                                                  ? null
+                                                  : d.errorMessage,
                                             ),
+                                            keyboardType: TextInputType.number,
+                                            onChanged: (v) => context
+                                                .read<AgregarProductoBloc>()
+                                                .add(
+                                                  ChangedDescuentoCantidadEvent(
+                                                    descuentoId: d.id,
+                                                    cantidad: v,
+                                                  ),
+                                                ),
+                                            inputFormatters: [
+                                              // Permite números y punto; limita a 2 decimales con un TextInputFormatter simple
+                                              FilteringTextInputFormatter.allow(
+                                                RegExp(r'[0-9]'),
+                                              ),
+                                            ],
                                           ),
-                                    ),
                                         ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: TextFormField(
-                                      initialValue: d.precio == 0.0
-                                          ? ''
-                                          : d.precio.toStringAsFixed(2),
-                                      decoration: const InputDecoration(
-                                        labelText: 'Precio',
-                                      ),
-                                      keyboardType:
-                                          TextInputType.numberWithOptions(
-                                            decimal: true,
-                                          ),
-                                      onChanged: (v) => context
-                                          .read<AgregarProductoBloc>()
-                                          .add(
-                                            ChangedDescuentoPrecioEvent(
-                                              descuentoId: d.id,
-                                              precio: v,
+                                            initialValue: d.precio == 0.0
+                                                ? ''
+                                                : d.precio.toStringAsFixed(2),
+                                            decoration: const InputDecoration(
+                                              labelText: 'Precio',
+                                              prefixText: '\$ ',
                                             ),
+                                            keyboardType:
+                                                TextInputType.numberWithOptions(
+                                                  decimal: true,
+                                                ),
+                                            onChanged: (v) => context
+                                                .read<AgregarProductoBloc>()
+                                                .add(
+                                                  ChangedDescuentoPrecioEvent(
+                                                    descuentoId: d.id,
+                                                    precio: v,
+                                                  ),
+                                                ),
+                                            inputFormatters: [
+                                              // Permite números y punto; limita a 2 decimales con un TextInputFormatter simple
+                                              FilteringTextInputFormatter.allow(
+                                                RegExp(r'[0-9.,]'),
+                                              ),
+                                            ],
                                           ),
-                                    ),
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.delete),
-                                          onPressed: () => context.read<AgregarProductoBloc>().add(
-                                            RemovedDescuentoEvent(
-                                              descuentoId: d.id,
-                                            ),
-                                          ),
+                                          onPressed: () => context
+                                              .read<AgregarProductoBloc>()
+                                              .add(
+                                                RemovedDescuentoEvent(
+                                                  descuentoId: d.id,
+                                                ),
+                                              ),
                                         ),
                                       ],
                                     ),

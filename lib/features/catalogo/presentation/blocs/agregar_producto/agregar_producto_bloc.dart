@@ -105,7 +105,7 @@ class AgregarProductoBloc extends Bloc<AgregarProductoEvent, AgregarProductoStat
       String nombreMessage = state.nombreMessage.isEmpty ? 'El nombre es un campo obligatorio' : state.nombreMessage;
       String precioMessage = state.precioMessage.isEmpty ? 'El precio es un campo obligatorio' : state.precioMessage;
 
-      if(!validNombre && !validPrecio){
+      if(!validNombre || !validPrecio){
         emit(state.copyWith(
           nombreStatus: !validNombre ? NombreStatus.invalid : state.nombreStatus,
           nombreMessage: !validNombre ? nombreMessage : state.nombreMessage,
