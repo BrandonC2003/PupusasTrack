@@ -8,6 +8,7 @@ import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/cata
 import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_event.dart';
 import 'package:pupusas_track/features/catalogo/presentation/blocs/catalogo/catalogo_state.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/entities/catalogo_producto_entity.dart';
+import 'package:pupusas_track/features/catalogo_producto/domain/enumerables/tipo_producto.dart';
 import 'package:pupusas_track/features/material/domain/entities/material_entity.dart';
 import 'package:pupusas_track/injection.dart';
 
@@ -172,6 +173,7 @@ class _CatalogoScreenState extends State<CatalogoScreen>
   Widget _buildPupusaCard(CatalogoProductoEntity pupusa) {
     return BlocBuilder<CatalogoBloc, CatalogoState>(
       builder: (context, state) {
+        final catalogoBloc = context.read<CatalogoBloc>();
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           elevation: 2,
@@ -181,7 +183,15 @@ class _CatalogoScreenState extends State<CatalogoScreen>
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () => _editItem(pupusa),
+            onTap: () async {
+              final result = await context.push<bool>(
+                AppRoutes.actualizarProducto,
+                extra: pupusa,
+              );
+              if (result == true) {
+                catalogoBloc.add(CargarProductos());
+              }
+            },
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -493,7 +503,12 @@ class _CatalogoScreenState extends State<CatalogoScreen>
 
   void _editItem(dynamic item) {
     if (item is CatalogoProductoEntity) {
-      context.push('${AppRoutes.agregarBebida}/${item.id}');
+      if(item.tipoProducto == TipoProducto.bebida){
+        context.push(AppRoutes.agregarBebida);
+      }else if(item.tipoProducto == TipoProducto.pupusa){
+        context.push(AppRoutes.actualizarProducto, extra: item);
+      }
+      
     } else if (item is MaterialEntity) {
       context.push<bool>(AppRoutes.actualizarMaterial, extra: item);
     }

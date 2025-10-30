@@ -28,6 +28,7 @@ class CatalogoProductoModel {
     return CatalogoProductoModel(
       id: entity.id,
       nombre: entity.nombre,
+      descripcion: entity.descripcion,
       tipoProducto: entity.tipoProducto,
       precio: entity.precio,
       descuentos: entity.descuentos
@@ -61,6 +62,7 @@ class CatalogoProductoModel {
     return CatalogoProductoEntity(
       id: id, 
       nombre: nombre, 
+      descripcion: descripcion,
       tipoProducto: tipoProducto, 
       precio: precio, 
       descuentos: descuentos?.map((descuento) => descuento.toEntity()).toList() ?? [],

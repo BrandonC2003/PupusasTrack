@@ -5,10 +5,12 @@ import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_bloc_no
 import 'package:pupusas_track/features/auth/presentation/blocs/auth/auth_state.dart';
 import 'package:pupusas_track/features/auth/presentation/screens/sign_out_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/actualizar_material_screen.dart';
+import 'package:pupusas_track/features/catalogo/presentation/screens/actualizar_producto_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_bebida_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_material_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/agregar_producto_screen.dart';
 import 'package:pupusas_track/features/catalogo/presentation/screens/catalogo_screen.dart';
+import 'package:pupusas_track/features/catalogo_producto/domain/entities/catalogo_producto_entity.dart';
 import 'package:pupusas_track/features/informes/presentation/screens/informes_screen.dart';
 import 'package:pupusas_track/features/main_layout/presentation/screens/home_screen.dart';
 import 'package:pupusas_track/features/main_layout/presentation/screens/main_layout_screen.dart';
@@ -84,6 +86,15 @@ class AppRouter {
               path: AppRoutes.agregarProducto,
               builder: (context, state) => const AgregarProductoScreen(),
             ),
+
+            GoRoute(
+              path: AppRoutes.actualizarProducto,
+              builder: (context, state) {
+                final pupusa = state.extra as CatalogoProductoEntity;
+                return ActualizarProductoScreen(pupusa: pupusa);
+              },
+            ),
+
             GoRoute(
               path: AppRoutes.agregarBebida,
               builder: (context, state) => const AgregarBebidaScreen(),

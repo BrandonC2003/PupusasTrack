@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pupusas_track/core/data/services/session_service_impl.dart';
 import 'package:pupusas_track/core/domain/services/session_service.dart';
 import 'package:pupusas_track/features/catalogo/presentation/blocs/actualizar_material/actualizar_material_bloc.dart';
+import 'package:pupusas_track/features/catalogo/presentation/blocs/actualizar_producto/actualizar_producto_bloc.dart';
 import 'package:pupusas_track/features/catalogo/presentation/blocs/agregar_bebida/agregar_bebida_bloc.dart';
 import 'package:pupusas_track/features/catalogo/presentation/blocs/agregar_material/agregar_material_bloc.dart';
 import 'package:pupusas_track/features/catalogo/presentation/blocs/agregar_producto/agregar_producto_bloc.dart';
@@ -171,5 +172,9 @@ Future<void> initDependencies() async {
 
   sl.registerFactory(
     () => ActualizarMaterialBloc(actualizarMaterialUseCase: sl())
+  );
+
+  sl.registerFactory(
+    () => ActualizarProductoBloc(actualizarProductoUseCase: sl())
   );
 }
