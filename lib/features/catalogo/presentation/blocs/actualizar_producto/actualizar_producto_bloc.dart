@@ -77,13 +77,13 @@ class ActualizarProductoBloc
       }
 
       final precio = double.tryParse(precioStr);
-      if (precio == null || precio < 0) {
+      if (precio == null || precio <= 0) {
         emit(
           state.copyWith(
             precio: 0.0,
             precioStatus: PrecioStatus.invalid,
             precioMessage:
-                'El precio debe ser un numero válido mayor o igual a 0',
+                'El precio debe ser un numero válido mayor a 0',
           ),
         );
       } else {

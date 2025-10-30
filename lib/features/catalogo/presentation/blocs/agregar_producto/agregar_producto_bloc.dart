@@ -5,26 +5,30 @@ import 'package:pupusas_track/features/catalogo_producto/domain/entities/catalog
 import 'package:pupusas_track/features/catalogo_producto/domain/enumerables/tipo_producto.dart';
 import 'package:pupusas_track/features/catalogo_producto/domain/use_cases/agregar_producto_use_case.dart';
 
-class AgregarProductoBloc extends Bloc<AgregarProductoEvent, AgregarProductoState>{
-
+class AgregarProductoBloc
+    extends Bloc<AgregarProductoEvent, AgregarProductoState> {
   final AgregarProductoUseCase agregarProductoUseCase;
 
-  AgregarProductoBloc({required this.agregarProductoUseCase}) 
-  : super(const AgregarProductoState()) {
+  AgregarProductoBloc({required this.agregarProductoUseCase})
+    : super(const AgregarProductoState()) {
     on<ChangedNombreEvent>((event, emit) {
       final nombre = event.nombre.trim();
       if (nombre.isEmpty) {
-        emit(state.copyWith(
-          nombre: nombre,
-          nombreStatus: NombreStatus.invalid,
-          nombreMessage: 'El nombre es un campo obligatorio',
-        ));
+        emit(
+          state.copyWith(
+            nombre: nombre,
+            nombreStatus: NombreStatus.invalid,
+            nombreMessage: 'El nombre es un campo obligatorio',
+          ),
+        );
       } else {
-        emit(state.copyWith(
-          nombre: nombre,
-          nombreStatus: NombreStatus.valid,
-          nombreMessage: '',
-        ));
+        emit(
+          state.copyWith(
+            nombre: nombre,
+            nombreStatus: NombreStatus.valid,
+            nombreMessage: '',
+          ),
+        );
       }
     });
 
@@ -36,29 +40,35 @@ class AgregarProductoBloc extends Bloc<AgregarProductoEvent, AgregarProductoStat
     on<ChangedPrecioEvent>((event, emit) {
       final precioStr = event.precio.trim();
 
-      if(precioStr.isEmpty){
-        emit(state.copyWith(
-          precio: 0.0,
-          precioStatus: PrecioStatus.invalid,
-          precioMessage: 'El precio es un campo obligatorio',
-        ));
+      if (precioStr.isEmpty) {
+        emit(
+          state.copyWith(
+            precio: 0.0,
+            precioStatus: PrecioStatus.invalid,
+            precioMessage: 'El precio es un campo obligatorio',
+          ),
+        );
         return;
       }
-      
-      
+
       final precio = double.tryParse(precioStr);
-      if (precio == null || precio < 0) {
-        emit(state.copyWith(
-          precio: 0.0,
-          precioStatus: PrecioStatus.invalid,
-          precioMessage: 'El precio debe ser un numero válido mayor o igual a 0',
-        ));
+      if (precio == null || precio <= 0) {
+        emit(
+          state.copyWith(
+            precio: 0.0,
+            precioStatus: PrecioStatus.invalid,
+            precioMessage:
+                'El precio debe ser un numero válido mayor a 0',
+          ),
+        );
       } else {
-        emit(state.copyWith(
-          precio: precio,
-          precioStatus: PrecioStatus.valid,
-          precioMessage: '',
-        ));
+        emit(
+          state.copyWith(
+            precio: precio,
+            precioStatus: PrecioStatus.valid,
+            precioMessage: '',
+          ),
+        );
       }
     });
 
@@ -73,7 +83,9 @@ class AgregarProductoBloc extends Bloc<AgregarProductoEvent, AgregarProductoStat
     });
 
     on<RemovedDescuentoEvent>((event, emit) {
-      final nuevosDescuentos = state.descuentos.where((descuento) => descuento.id != event.descuentoId).toList();
+      final nuevosDescuentos = state.descuentos
+          .where((descuento) => descuento.id != event.descuentoId)
+          .toList();
       emit(state.copyWith(descuentos: nuevosDescuentos));
     });
 
@@ -100,41 +112,50 @@ class AgregarProductoBloc extends Bloc<AgregarProductoEvent, AgregarProductoStat
     });
 
     on<SubmitProductoEvent>((event, emit) async {
+      // Si los campos no han sido validados, forzar su validación
+      // y esperar un ciclo de evento para que el estado se actualice
+      if (state.nombreStatus == NombreStatus.initial) {
+        add(ChangedNombreEvent(nombre: state.nombre));
+        await Future.delayed(Duration(milliseconds: 1));
+      }
+
+      if (state.precioStatus == PrecioStatus.initial) {
+        add(ChangedPrecioEvent(precio: state.precio.toString()));
+        await Future.delayed(Duration(milliseconds: 1));
+      }
+
       bool validNombre = state.nombreStatus == NombreStatus.valid;
       bool validPrecio = state.precioStatus == PrecioStatus.valid;
-      String nombreMessage = state.nombreMessage.isEmpty ? 'El nombre es un campo obligatorio' : state.nombreMessage;
-      String precioMessage = state.precioMessage.isEmpty ? 'El precio es un campo obligatorio' : state.precioMessage;
 
-      if(!validNombre || !validPrecio){
-        emit(state.copyWith(
-          nombreStatus: !validNombre ? NombreStatus.invalid : state.nombreStatus,
-          nombreMessage: !validNombre ? nombreMessage : state.nombreMessage,
-          precioStatus: !validPrecio ? PrecioStatus.invalid : state.precioStatus,
-          precioMessage: !validPrecio ? precioMessage : state.precioMessage,
-          status: AgregarProductoStatus.failure,
-          errorMessage: 'Complete el formulario correctamente',
-        ));
+      if (!validNombre || !validPrecio) {
+        emit(
+          state.copyWith(
+            status: AgregarProductoStatus.failure,
+            errorMessage: 'Complete el formulario correctamente',
+          ),
+        );
 
-        emit(state.copyWith(
-        status: AgregarProductoStatus.initial,
-      ));
+        emit(state.copyWith(status: AgregarProductoStatus.initial));
         return;
-      } 
+      }
 
-      await agregarProductoUseCase(CatalogoProductoEntity(
-        id: '', 
-        nombre: state.nombre, 
-        descripcion: state.descripcion,
-        tipoProducto: TipoProducto.pupusa, 
-        precio: state.precio, 
-        descuentos: state.descuentos.map((d) => DescuentoEntity(cantidad: d.cantidad, precio: d.precio)).toList(),
-        disponible: state.disponible
-        )
+      await agregarProductoUseCase(
+        CatalogoProductoEntity(
+          id: '',
+          nombre: state.nombre,
+          descripcion: state.descripcion,
+          tipoProducto: TipoProducto.pupusa,
+          precio: state.precio,
+          descuentos: state.descuentos
+              .map(
+                (d) => DescuentoEntity(cantidad: d.cantidad, precio: d.precio),
+              )
+              .toList(),
+          disponible: state.disponible,
+        ),
       );
 
-      emit(state.copyWith(
-        status: AgregarProductoStatus.success,
-      ));
+      emit(state.copyWith(status: AgregarProductoStatus.success));
     });
   }
 }
